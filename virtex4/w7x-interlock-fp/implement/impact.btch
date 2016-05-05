@@ -1,0 +1,10 @@
+#e:\Xilinx\14.7\ISE_DS\ISE\bin\nt\impact -batch impact.btch
+setMode -acecf
+addCollection -name "W7X"
+addDesign -version 0 -name id24_vAA
+addDeviceChain -index 0
+#addDevice -p 1 -file "results/routed.bit"
+addDevice -p 1 -file "../ISE_14.7/w7x_intlck_fp.bit"
+#generate -active  IPP -path "h:\"
+generate -active  IPP 
+quit

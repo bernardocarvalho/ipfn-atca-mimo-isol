@@ -1,0 +1,81 @@
+; AD9511 Configuration File
+; 1-bit wide by 464 deep ROM
+
+memory_initialization_radix = 2;
+
+memory_initialization_vector = 
+1 
+0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 
+1 
+0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 
+1 
+0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 1 1 0 0 1 
+1 
+0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0 0 
+1 
+0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 1 1 1 0 1 1 
+1 
+0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 1 1 1 0 
+1 
+0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 1 0 0 0 0 0 0 0 0 
+1 
+0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 
+1 
+0 0 0 0 0 0 0 0 0 0 1 1 0 1 0 0 0 0 0 0 0 0 0 1 
+1 
+0 0 0 0 0 0 0 0 0 0 1 1 0 1 1 0 0 0 1 0 0 0 0 0 
+1 
+0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 1 0 0 0 0 0 0 1 0 
+1 
+0 0 0 0 0 0 0 0 0 1 0 0 1 0 1 0 0 0 1 0 0 0 0 1 
+1 
+0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 0 0 1 0 0 0 1 0 0 
+1 
+0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0 1 0 0 0 0 1 
+1 
+0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 1 0 0 1 1 0 0 1 
+1 
+0 0 0 0 0 0 0 0 0 1 0 1 0 0 1 0 0 1 0 0 0 1 0 0 
+1 
+0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 1 0 0 0 0 0 
+1 
+0 0 0 0 0 0 0 0 0 1 0 1 1 0 1 0 0 0 0 0 0 0 0 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+
+; word bit
+; register (addr 04) N divider A = 0
+; word bit
+; register (addr 05) N divider B = 25
+; word bit
+; register (addr 06) N divider B = 25
+; word bit
+; register (addr 07) Loss Of Reference disabled
+; word bit
+; register (addr 08) Charge Pump normal; Loss-of-Reference or Loss-of-Lock (Active Low) ; Positive PFD polarity
+; word bit
+; register (addr 0A) Normal operation; N divider P = 4
+; word bit
+; register (addr 0B) R divider = 1
+; word bit
+; register (addr 0C) R divider = 1
+; word bit
+; register (addr 34) Delay off
+; word bit
+; register (addr 36) Half delay
+; word bit
+; register (addr 45) CLK2 on; CLK1 off
+; word bit
+; register (addr 4A) OUT0 Divided by 5
+; word bit
+; register (addr 4C) OUT1 Divided by 10
+; word bit
+; register (addr 4E) OUT2 Divided by 5
+; word bit
+; register (addr 50) OUT3 Divided by 20
+; word bit
+; register (addr 52) OUT4 Divided by 10
+; word bit
+; register (addr 09) CP current 1.8 mA
+; word bit
+; register (addr 5A) Registers update instruction
+; extra bits to fill the ROM

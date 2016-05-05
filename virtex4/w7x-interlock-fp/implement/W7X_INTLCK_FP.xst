@@ -1,0 +1,18 @@
+set -xsthdpdir "xst"
+run 
+-p xc4vfx60-11-ff1152
+-ifn W7X_INTLCK_FP.prj
+-ifmt mixed  
+-ofn W7X_INTLCK_FP 
+-ofmt NGC
+-top W7X_INTLCK_FP
+-use_dsp48 no
+-bufg 32
+-iobuf YES
+-opt_mode  SPEED
+-opt_level 2
+-max_fanout 100
+-keep_hierarchy no
+-rtlview yes
+-use_sync_reset no
+

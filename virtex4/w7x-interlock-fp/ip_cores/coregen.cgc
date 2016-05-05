@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spirit:design xmlns:spirit="http://www.spiritconsortium.org/XMLSchema/SPIRIT/1.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xilinx="http://www.xilinx.com" >
+   <spirit:vendor>xilinx.com</spirit:vendor>
+   <spirit:library>project</spirit:library>
+   <spirit:name>coregen</spirit:name>
+   <spirit:version>1.0</spirit:version>
+   <spirit:componentInstances>
+      <spirit:componentInstance>
+         <spirit:instanceName>AD9511_CONFIG</spirit:instanceName>
+         <spirit:displayName></spirit:displayName>
+         <spirit:description></spirit:description>
+         <spirit:componentRef spirit:vendor="xilinx.com" spirit:library="ip" spirit:name="dist_mem_gen" spirit:version="3.3" />
+         <spirit:configurableElementValues>
+            <spirit:configurableElementValue spirit:referenceId="parameter_reset_qspo">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_coefficient_file">.\AD9511.coe</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_reset_qdpo">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_dual_port_address">non_registered</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_common_output_ce">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_memory_type">rom</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_depth">464</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_ce_overrides">ce_overrides_sync_controls</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_data_width">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_pipeline_stages">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_default_data">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_single_port_output_clock_enable">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_qualify_we_with_i_ce">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_common_output_clk">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_default_data_radix">2</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_dual_port_output_clock_enable">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_output_options">non_registered</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_sync_reset_qspo">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_input_options">non_registered</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_input_clock_enable">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_sync_reset_qdpo">false</spirit:configurableElementValue>
+         </spirit:configurableElementValues>
+         <spirit:vendorExtensions>
+            <xilinx:instanceProperties>
+             <xilinx:projectOptions>
+               <xilinx:projectName>coregen</xilinx:projectName>
+               <xilinx:outputDirectory>./</xilinx:outputDirectory>
+               <xilinx:workingDirectory>./tmp/</xilinx:workingDirectory>
+               <xilinx:subWorkingDirectory>./tmp/_cg</xilinx:subWorkingDirectory>
+             </xilinx:projectOptions>
+             <xilinx:part>
+               <xilinx:device>xc4vfx60</xilinx:device>
+               <xilinx:deviceFamily>virtex4</xilinx:deviceFamily>
+               <xilinx:package>ff1152</xilinx:package>
+               <xilinx:speedGrade>-11</xilinx:speedGrade>
+             </xilinx:part>
+             <xilinx:flowOptions>
+               <xilinx:busFormat>BusFormatAngleBracketNotRipped</xilinx:busFormat>
+               <xilinx:designEntry>Verilog</xilinx:designEntry>
+               <xilinx:asySymbol>true</xilinx:asySymbol>
+               <xilinx:flowVendor>Foundation_ISE</xilinx:flowVendor>
+               <xilinx:addPads>false</xilinx:addPads>
+               <xilinx:removeRPMs>false</xilinx:removeRPMs>
+               <xilinx:createNDF>false</xilinx:createNDF>
+               <xilinx:implementationFileType>Ngc</xilinx:implementationFileType>
+               <xilinx:formalVerification>false</xilinx:formalVerification>
+             </xilinx:flowOptions>
+             <xilinx:simulationOptions>
+               <xilinx:simulationModel>Behavioral</xilinx:simulationModel>
+               <xilinx:simulationLanguage>VHDL_and_Verilog</xilinx:simulationLanguage>
+               <xilinx:foundationSym>false</xilinx:foundationSym>
+             </xilinx:simulationOptions>
+           </xilinx:instanceProperties>
+            <xilinx:generationHistory>
+               <xilinx:fileSet>
+                  <xilinx:name>implementation_netlist_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./AD9511_CONFIG.asy</xilinx:name>
+                     <xilinx:userFileType>asy</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:21:20 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0x0ED691FA</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./AD9511_CONFIG.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:21:20 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0x9DE21F11</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./AD9511_CONFIG.ngc</xilinx:name>
+                     <xilinx:userFileType>ngc</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:22:06 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0xEEB9506B</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./AD9511_CONFIG.sym</xilinx:name>
+                     <xilinx:userFileType>asy</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:21:49 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0xFCC26A75</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./AD9511_CONFIG.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:21:48 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0x789B9963</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./AD9511_CONFIG.veo</xilinx:name>
+                     <xilinx:userFileType>veo</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:21:48 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0x63A802F2</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./AD9511_CONFIG.vhd</xilinx:name>
+                     <xilinx:userFileType>vhdl</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:21:48 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0xFB35B7CF</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./AD9511_CONFIG.vho</xilinx:name>
+                     <xilinx:userFileType>vho</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:21:48 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0xC34B4EC8</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./dist_mem_gen_ds322.pdf</xilinx:name>
+                     <xilinx:userFileType>pdf</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:21:48 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0x5277D470</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./dist_mem_gen_release_notes.txt</xilinx:name>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:21:48 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0xE0514505</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>instantiation_template_generator</xilinx:name>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>xco_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./AD9511_CONFIG.xco</xilinx:name>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:22:12 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0x3A2A0E3B</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>xmdf_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./AD9511_CONFIG_xmdf.tcl</xilinx:name>
+                     <xilinx:userFileType>tclXmdf</xilinx:userFileType>
+                     <xilinx:userFileType>tcl</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:22:13 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0x82F84A81</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>ise_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./AD9511_CONFIG.gise</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>gise</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:22:21 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0xC1583526</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./AD9511_CONFIG.xise</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>xise</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:22:20 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0x4624CB39</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./_xmsgs/pn_parser.xmsgs</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:22:20 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0xBBA10DDD</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>deliver_readme_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./AD9511_CONFIG_readme.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txtReadme</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:22:21 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0xBF6E4D11</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>flist_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./AD9511_CONFIG_flist.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txtFlist</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 20 16:22:21 GMT 2013</xilinx:timeStamp>
+                     <xilinx:checkSum>0x0F342AFE</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+            </xilinx:generationHistory>
+         </spirit:vendorExtensions>
+      </spirit:componentInstance>
+      <spirit:componentInstance>
+         <spirit:instanceName>RT_FIFO</spirit:instanceName>
+         <spirit:displayName></spirit:displayName>
+         <spirit:description></spirit:description>
+         <spirit:componentRef spirit:vendor="xilinx.com" spirit:library="ip" spirit:name="fifo_generator" spirit:version="6.1" />
+         <spirit:configurableElementValues>
+            <spirit:configurableElementValue spirit:referenceId="parameter_almost_empty_flag">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_write_data_count">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_full_threshold_negate_value">96</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_empty_threshold_negate_value">64</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_output_data_width">32</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_input_depth">128</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_valid_flag">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_programmable_empty_type">Single_Programmable_Empty_Threshold_Constant</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_write_acknowledge_flag">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_enable_int_clk">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_fifo_implementation">Independent_Clocks_Block_RAM</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_underflow_flag">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_use_extra_logic">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_full_flags_reset_value">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_valid_sense">Active_High</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_write_data_count_width">7</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_inject_dbit_error">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_data_count_width">7</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_output_depth">128</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_dout_reset_value">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_enable_reset_synchronization">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_reset_pin">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_underflow_sense">Active_High</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_overflow_sense">Active_High</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_overflow_flag">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_read_data_count">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_data_count">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_programmable_full_type">Single_Programmable_Full_Threshold_Constant</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_inject_sbit_error">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_read_data_count_width">7</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_reset_type">Asynchronous_Reset</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_performance_options">First_Word_Fall_Through</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_full_threshold_assert_value">97</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_use_dout_reset">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_almost_full_flag">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_use_embedded_registers">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_read_clock_frequency">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_write_acknowledge_sense">Active_High</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_disable_timing_violations">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_empty_threshold_assert_value">63</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_input_data_width">32</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_write_clock_frequency">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_enable_ecc">false</spirit:configurableElementValue>
+         </spirit:configurableElementValues>
+         <spirit:vendorExtensions>
+            <xilinx:instanceProperties xmlns:xilinx="http://www.xilinx.com">
+             <xilinx:projectOptions>
+               <xilinx:projectName>coregen</xilinx:projectName>
+               <xilinx:outputDirectory>./</xilinx:outputDirectory>
+               <xilinx:workingDirectory>./tmp/</xilinx:workingDirectory>
+               <xilinx:subWorkingDirectory>./tmp/_cg</xilinx:subWorkingDirectory>
+             </xilinx:projectOptions>
+             <xilinx:part>
+               <xilinx:device>xc4vfx60</xilinx:device>
+               <xilinx:deviceFamily>virtex4</xilinx:deviceFamily>
+               <xilinx:package>ff1152</xilinx:package>
+               <xilinx:speedGrade>-11</xilinx:speedGrade>
+             </xilinx:part>
+             <xilinx:flowOptions>
+               <xilinx:busFormat>BusFormatAngleBracketNotRipped</xilinx:busFormat>
+               <xilinx:designEntry>Verilog</xilinx:designEntry>
+               <xilinx:asySymbol>true</xilinx:asySymbol>
+               <xilinx:flowVendor>Foundation_ISE</xilinx:flowVendor>
+               <xilinx:addPads>false</xilinx:addPads>
+               <xilinx:removeRPMs>false</xilinx:removeRPMs>
+               <xilinx:createNDF>false</xilinx:createNDF>
+               <xilinx:implementationFileType>Ngc</xilinx:implementationFileType>
+               <xilinx:formalVerification>false</xilinx:formalVerification>
+             </xilinx:flowOptions>
+             <xilinx:simulationOptions>
+               <xilinx:simulationModel>Behavioral</xilinx:simulationModel>
+               <xilinx:simulationLanguage>VHDL_and_Verilog</xilinx:simulationLanguage>
+               <xilinx:foundationSym>false</xilinx:foundationSym>
+             </xilinx:simulationOptions>
+           </xilinx:instanceProperties>
+         </spirit:vendorExtensions>
+      </spirit:componentInstance>
+      <spirit:componentInstance>
+         <spirit:instanceName>pcie37</spirit:instanceName>
+         <spirit:displayName></spirit:displayName>
+         <spirit:description></spirit:description>
+         <spirit:componentRef spirit:vendor="xilinx.com" spirit:library="ip" spirit:name="pci_express" spirit:version="3.7" />
+         <spirit:configurableElementValues>
+            <spirit:configurableElementValue spirit:referenceId="parameter_capability_version">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar3_prefetchable">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_expansion_rom_scale">Kilobytes</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_device_capabilities_register">00000FC1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar2_type">IO</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_link_capabilities_register">0003FC11</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_class_code_value">050000</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d3_power_dissipated_factor">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d1_power_dissipated">30</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d3hot_pme_support">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_ext_pci_cfg_space">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_class_code_sub">00</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d3_power_consumed_factor">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_expansion_rom_enabled">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar5_size">64</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d2_support">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_device_specific_initialization">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar0_size">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d1_support">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_device_id">0021</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_vendor_id">10EE</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_acceptable_l1_latency">No_limit</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_ack_timeout">0000</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_device_port_type">PCI_Express_Endpoint_device</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar1_prefetchable">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_disable_calibration_block">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar3_type">IO</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d0_pme_support">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_acceptable_l0_latency">No_limit</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_class_code_base">05</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d1_power_dissipated_factor">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_expansion_rom_size">4</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_expansion_rom_bar">00000000</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar5_prefetchable">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d0_power_dissipated_factor">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar2_prefetchable">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_extended_tag_field">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d3_power_dissipated">30</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar1_size">256</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_max_payload_size">256_bytes</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d1_power_consumed">30</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar4_type">IO</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d3cold_pme_support">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_aux_max_current">0mA</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_trim_tlp_digest">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d3_power_consumed">30</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar5_scale">Kilobytes</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar5_enabled">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_enable_aspm_l1_support">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar4_enabled">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar4_scale">Kilobytes</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d0_power_consumed_factor">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_hardware_autonomous">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_force_no_scrambling">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar3_enabled">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar5_value">00000000</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar3_scale">Kilobytes</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d1_pme_support">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar0_prefetchable">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar2_size">64</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar2_enabled">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar4_value">00000000</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar2_scale">Kilobytes</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_subsystem_id">0007</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar5_type">IO</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar1_enabled">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_maximum_link_width">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar3_value">00000000</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar1_scale">bytes</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar4_prefetchable">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar0_type">Memory</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d2_power_dissipated_factor">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar0_enabled">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar4_64bit">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar2_value">00000000</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar0_scale">Megabytes</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar3_64bit">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d2_power_dissipated">30</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar1_value">FFFFFF08</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_pci_cfg_space">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar2_64bit">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_phantom_functions">No_function_number_bits_used</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar0_value">FFF00008</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar3_size">64</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d2_power_consumed_factor">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_swap_a_b_pairs">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar1_64bit">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d0_power_dissipated">30</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_replay_timer">860D</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar0_64bit">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar1_type">Memory</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_revision_id">00</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_multiple_message_capable">1_vector</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d0_power_consumed">30</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_subsystem_vendor_id">10EE</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d1_power_consumed_factor">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_capabilities_register">0001</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_class_code_interface">00</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_cardbus_cis_pointer">00000000</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d2_pme_support">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_maximum_link_speed">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_d2_power_consumed">30</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_lane_width">X1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bar4_size">64</spirit:configurableElementValue>
+         </spirit:configurableElementValues>
+         <spirit:vendorExtensions>
+            <xilinx:instanceProperties xmlns:xilinx="http://www.xilinx.com">
+             <xilinx:projectOptions>
+               <xilinx:projectName>coregen</xilinx:projectName>
+               <xilinx:outputDirectory>./</xilinx:outputDirectory>
+               <xilinx:workingDirectory>./tmp/</xilinx:workingDirectory>
+               <xilinx:subWorkingDirectory>./tmp/_cg</xilinx:subWorkingDirectory>
+             </xilinx:projectOptions>
+             <xilinx:part>
+               <xilinx:device>xc4vfx60</xilinx:device>
+               <xilinx:deviceFamily>virtex4</xilinx:deviceFamily>
+               <xilinx:package>ff1152</xilinx:package>
+               <xilinx:speedGrade>-11</xilinx:speedGrade>
+             </xilinx:part>
+             <xilinx:flowOptions>
+               <xilinx:busFormat>BusFormatAngleBracketNotRipped</xilinx:busFormat>
+               <xilinx:designEntry>Verilog</xilinx:designEntry>
+               <xilinx:asySymbol>true</xilinx:asySymbol>
+               <xilinx:flowVendor>Foundation_ISE</xilinx:flowVendor>
+               <xilinx:addPads>false</xilinx:addPads>
+               <xilinx:removeRPMs>false</xilinx:removeRPMs>
+               <xilinx:createNDF>false</xilinx:createNDF>
+               <xilinx:implementationFileType>Ngc</xilinx:implementationFileType>
+               <xilinx:formalVerification>false</xilinx:formalVerification>
+             </xilinx:flowOptions>
+             <xilinx:simulationOptions>
+               <xilinx:simulationModel>Behavioral</xilinx:simulationModel>
+               <xilinx:simulationLanguage>VHDL_and_Verilog</xilinx:simulationLanguage>
+               <xilinx:foundationSym>false</xilinx:foundationSym>
+             </xilinx:simulationOptions>
+           </xilinx:instanceProperties>
+         </spirit:vendorExtensions>
+      </spirit:componentInstance>
+   </spirit:componentInstances>
+   <spirit:description></spirit:description>
+   <spirit:vendorExtensions>
+      <xilinx:instanceProperties xmlns:xilinx="http://www.xilinx.com">
+       <xilinx:projectOptions>
+         <xilinx:projectName>coregen</xilinx:projectName>
+         <xilinx:outputDirectory>./</xilinx:outputDirectory>
+         <xilinx:workingDirectory>./tmp/</xilinx:workingDirectory>
+         <xilinx:subWorkingDirectory>./tmp/_cg</xilinx:subWorkingDirectory>
+       </xilinx:projectOptions>
+       <xilinx:part>
+         <xilinx:device>xc4vfx60</xilinx:device>
+         <xilinx:deviceFamily>virtex4</xilinx:deviceFamily>
+         <xilinx:package>ff1152</xilinx:package>
+         <xilinx:speedGrade>-11</xilinx:speedGrade>
+       </xilinx:part>
+       <xilinx:flowOptions>
+         <xilinx:busFormat>BusFormatAngleBracketNotRipped</xilinx:busFormat>
+         <xilinx:designEntry>Verilog</xilinx:designEntry>
+         <xilinx:asySymbol>true</xilinx:asySymbol>
+         <xilinx:flowVendor>Foundation_ISE</xilinx:flowVendor>
+         <xilinx:addPads>false</xilinx:addPads>
+         <xilinx:removeRPMs>false</xilinx:removeRPMs>
+         <xilinx:createNDF>false</xilinx:createNDF>
+         <xilinx:implementationFileType>Ngc</xilinx:implementationFileType>
+         <xilinx:formalVerification>false</xilinx:formalVerification>
+       </xilinx:flowOptions>
+       <xilinx:simulationOptions>
+         <xilinx:simulationModel>Behavioral</xilinx:simulationModel>
+         <xilinx:simulationLanguage>VHDL_and_Verilog</xilinx:simulationLanguage>
+         <xilinx:foundationSym>false</xilinx:foundationSym>
+       </xilinx:simulationOptions>
+     </xilinx:instanceProperties>
+   </spirit:vendorExtensions>
+</spirit:design>

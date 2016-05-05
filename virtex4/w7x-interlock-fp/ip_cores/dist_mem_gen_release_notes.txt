@@ -1,0 +1,99 @@
+COPYRIGHT (c) 2007 XILINX, INC.
+ALL RIGHTS RESERVED
+
+Core name            : Distributed Memory Generator 
+Version              : v3.3
+Release Date         : April 2, 2007
+File                 : distributed_memory_generator_release_notes.txt
+
+Revision History
+Date     By            Version   Change Description
+========================================================================
+4/2007  Xilinx, Inc.  3.3       Initial creation.
+========================================================================
+
+INTRODUCTION
+RELEASE NOTES
+  1. General Core Design
+    1.1 Enhancements
+    1.2 Resolved Issues
+    1.3 Outstanding Issues
+  2. General Simulation
+    2.1 Enhancements
+    2.2 Resolved Issues
+    2.3 Outstanding Issues
+  3. Documentation
+    3.1 Enhancements
+    3.2 Resolved Issues
+    3.3 Outstanding Issues
+OTHER GENERAL INFORMATION
+TECHNICAL SUPPORT
+
+========================================================================
+
+INTRODUCTION
+============
+Thank you using the Distributed Memory Generator core from Xilinx!  
+In order to obtain the latest core updates and documentation, 
+please visit the Intellectual Property page located at:
+http://www.xilinx.com/ipcenter/index.htm
+This document contains the release notes for Distributed Memory Generator v3.3
+which includes enhancements, resolved issues and outstanding known
+issues.  For release notes and known issues for CORE Generator 9.1i
+IP Update and Distributed Memory Generator v3.3 please see Answer Record 24307.
+
+RELEASE NOTES
+=============
+This section lists any enhancements, resolved issues and outstanding
+known issues.
+
+
+1. General Core Design
+  1.1 Enhancements
+    1.1.1 Support for Spartan(TM) - 3A DSP
+ time.
+
+  1.2 Resolved Issues
+    1.2.1 Solved excessive register duplication in distributed memory synthesis.
+          Change request: 326740
+
+  1.3 Outstanding Issues
+    1.3.1 When a large Distributed Memory Generator IP is generated, CORE ,
+          Generator runs out of memory and fails to generate.
+          Change request: 431917
+
+2. General Simulation
+  2.1 Enhancements
+      None at this time.
+
+  2.2 Resolved Issues
+      None at this time.
+
+  2.3 Outstanding Issues
+      None at this time.
+
+3. Documentation
+  3.1 Enhancements
+      None at this time.
+
+  3.2 Resolved Issues
+      None at this time.
+      
+  3.3 Outstanding Issues
+      None at this time.
+
+
+TECHNICAL SUPPORT
+=================
+The fastest method for obtaining specific technical support for the 
+Distributed Memory Generator core is through the http://support.xilinx.com/
+website. Questions are routed to a team of engineers with specific
+expertise in using the Distributed Memory Generator core.  Xilinx will provide
+technical support for use of this product as described in the Distributed
+Memory Generator Datasheet. Xilinx cannot guarantee timing,
+functionality, or support of this product for designs that do not
+follow these guidelines.
+
+
+
+

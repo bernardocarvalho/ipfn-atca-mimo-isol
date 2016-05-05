@@ -1,0 +1,1 @@
+KERNEL=="atca_ioc*", MODE="0666"
