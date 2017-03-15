@@ -3,8 +3,8 @@
  * Definitions for the Linux Device Driver
  *
  * SVN keywords
- * $Date: 2015-03-30 12:38:09 +0100 (Mon, 30 Mar 2015) $
- * $Revision: 7274 $
+ * $Date: 2017-03-02 13:05:30 +0000 (Thu, 02 Mar 2017) $
+ * $Revision: 9961 $
  * $URL: http://metis.ipfn.ist.utl.pt:8888/svn/cdaq/ATCA/ATCA-IO-CONTROL/IPP/W7X_INTLCK_FP/Software/include/atca-ioc-int.h $
  *
  */
@@ -17,7 +17,19 @@
 
 #define DMA_MAX_BYTES  (4096 * 1024)  //4194304B (4MB)  => 65536 samples /DMA
 
-//TOD : to be used.
+#define DMA_ACQ_SIZE DMA_MAX_BYTES 
+
+//#define N_SAMP_P_DMA (DMA_SIZE/NUM_CHAN_SMP/4)  // nr samples per buffer (IRQ)
+#define DMA_N_CHAN 16 // nr of signal transferred on DMA packet(32 bit) 
+#define ADC_N_CHAN 6 // nr of adc raw channel transferred (32 bit)
+#define N_SAMP_P_DMA  (DMA_ACQ_SIZE/DMA_N_CHAN/4) 
+
+#define CHAN_CHOP  14
+#define CHOP_BIT_MASK 0x00000001
+#define CHOP_POS_VALUE 1
+#define CHOP_NEG_VALUE 0 
+
+//TODO : to be used.
 #ifdef __BIG_ENDIAN_BTFLD
  #define BTFLD(a,b) b,a
 #else
