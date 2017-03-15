@@ -3,7 +3,7 @@
  * @file acqDataProc.c
  * @author Bernardo Carvalho
  * @date 2015-09-2
- * @brief program module to aquire data from ATCA IOC board (Version W7X_INTLCK_FP  IPP)
+ * @brief program module to aquire data from ATCA IOC board (Version IPP)
  *
  *
  * Change History:
@@ -11,30 +11,10 @@
  * Revision 1.0 2015-09-2
  * 	Initial adaptation from getDataMem.c
  *
- * Copyright 2014 - 2015 IPFN-Instituto Superior Tecnico, Portugal
- * Creation Date  2014-02-10
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they
- * will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the
- * Licence.
- * You may obtain a copy of the Licence at:
- *
- * http://ec.europa.eu/idabc/eupl
- *
- * Unless required by applicable law or agreed to in
- * writing, software distributed under the Licence is
- * distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied.
- * See the Licence for the specific language governing
- * permissions and limitations under the Licence.
- *
  * SVN keywords
  * $Author: bernardo $
- * $Date: 2016-02-03 19:04:31 +0000 (Wed, 03 Feb 2016) $
- * $Revision: 8266 $
+ * $Date: 2017-03-03 08:37:11 +0000 (Fri, 03 Mar 2017) $
+ * $Revision: 9981 $
  * $URL: http://metis.ipfn.ist.utl.pt:8888/svn/cdaq/ATCA/ATCA-IO-CONTROL/IPP/W7X_INTLCK_FP/Software/apps/acqDataProc.c $
  */
 
@@ -53,29 +33,19 @@
 
 #include "atca-ioc-int-lib.h"
 
-//#include "test_common.h"
-
-//#define DMA_SIZE DMA_MAX_BYTES // 4096 * 32    Linux page size
-// 1 s = 2000000 samp = 31250 * 64 = 6250
-//#define DMA_ACQ_SIZE (4096 * 100)
-
 
 //#define N_DMA_PER_FILE 305// 10 s 3125
 #define N_DMA_PER_SECOND 31// 10 s 3125
 
 //#define RT_PROG
 
-//#define RESOURCE_NAME_DAQ "/dev/atca_ioc_ilck"
-/* Chopping freq = SAMPL_FREQ / CHOP_MAX_CNT  */
 #define CHOP_MAX_CNT 2000 //  1 kHz
 
-//#define ADC_CHAN 1 //  ADC chan to save
-#define DAC_CHAN 10   
-//#define DSP_CHAN 13  
-#define INT_CHAN (ADC_N_CHAN + ADC_CHAN) //  INT chan to save
+//#define DAC_CHAN 10   
+#define DSP_CHAN 13  
 
 int fd_adc = 0; /*global, to be used on sig_handler*/
-FILE * fd_data, * fd_chop, * fd_int, * fd_dac;
+FILE * fd_data, * fd_chop, * fd_int, * fd_dsp;
 int32_t * dmaBuff; //user space buffer for data
 
 size_t saveSize;
@@ -114,7 +84,7 @@ void save_mem_to_disk(int n_dmas){
       fwrite(padcDataWr, sizeof(int32_t), ADC_N_CHAN, fd_data);
       fwrite(&padcDataWr[ADC_N_CHAN], sizeof(float), ADC_N_CHAN, fd_int);
       fwrite(&padcDataWr[CHAN_CHOP], sizeof(int32_t), 1, fd_chop);
-      fwrite(&padcDataWr[DAC_CHAN], sizeof(int16_t), 1, fd_dac);
+      fwrite(&padcDataWr[DSP_CHAN], sizeof(float), 1, fd_dsp);
       padcDataWr +=  DMA_N_CHAN;// * sizeof(int32_t); // goto next packet
     }
   }
@@ -293,49 +263,17 @@ int main (int argc, char** argv){
   }
   PDEBUG("WO coefs: ");
   for (i = 0; i < adc_n_chans; i++) {
-    //adc_eo_offset[i] =   config_setting_get_int_elem(setting, i);
-    //    printf("\t#%d. %d\n",i, eo_offset[i]);
     adc_wo_offset[i]= round( config_setting_get_float_elem(setting, i)*(1<<16));
     PDEBUG(", %d:%f,",  adc_wo_offset[i],  config_setting_get_float_elem(setting, i));
   }
   PDEBUG("\n");
 
-  /*
-
-  int_offset_vec[0] = 13464; 
-  int_offset_vec[1] = 14918; // Ok
-  int_offset_vec[2] = 88169; // Ok
-  int_offset_vec[3] = 0; // Ok
-  int_offset_vec[4] = 0;//12103; // Ok
-  int_offset_vec[5] = -1000000;//7245; // Ok
-  // int_offset_vec[6] = 6004; // Ok
-
-
-  int_offset_vec[0] = -10535; // -mean(wo)_lsb * 2^16  
-  int_offset_vec[1] = -10000; 
-  int_offset_vec[2] = -12000; 
-  int_offset_vec[3] = -14000; 
-*/
-
   stop_device(fd_adc);
 
   acq_init_device(fd_adc, ADC_N_CHAN, DMA_ACQ_SIZE, CHOP_MAX_CNT, 
-		  adc_eo_offset, adc_eo_offset);
+		  adc_eo_offset, adc_wo_offset);
   free(adc_eo_offset); free(adc_wo_offset);
   
-  //i=0x3f800000; // 1.0 float
-  //    char  str[20];
-  //dsp_coeff.f=7.0e-5;
-  //  i=0x38d1b717; // 1.0e-4 float
-  //int write_coeff_reg(int fd, int chan, int val);
-  //  write_coeff_reg(fd_adc, 0, dsp_coeff.i);
-  // i=0xbf000000; // -0.5 float
-  //i=0;
-  //  i=0x3f800000; // 1.0 float
-
-  //	add_coeff = 0.317;
-
-
   setting = config_lookup(&cfg, "dsp_processing.chann_coeff");
   dataCfg = config_setting_length(setting);
   //  printf("data %d \n", data);
@@ -344,18 +282,16 @@ int main (int argc, char** argv){
     printf("6  is not the  number of dsp_processing.chann_coeff params\n");
     return(EXIT_FAILURE);
   }
+  PDEBUG("DSP coefs: ");
   PDEBUG(".chann_coeff: ");
   for (i = 0; i < 6; i++) {
-    //adc_eo_offset[i] =   config_setting_get_int_elem(setting, i);
-    //    printf("\t#%d. %d\n",i, eo_offset[i]);
     dsp_coeff.f= config_setting_get_float_elem(setting, i);
     write_coeff_reg(fd_adc, i, dsp_coeff.i);
-    //    adc_wo_offset[i]= round( config_setting_get_float_elem(setting, i)*(1<<16));
     PDEBUG(", %f,",   dsp_coeff.f);
   }
   PDEBUG("\n");
 
-
+  PDEBUG("ADDER coeff: ");
   if (config_lookup_float(&cfg, "dsp_processing.adder_coeff", &dataCfgD)){
     dsp_coeff.f=dataCfgD;
     PDEBUG("dsp_processing.adder_coeff= %f\n", dsp_coeff.f);
@@ -364,36 +300,25 @@ int main (int argc, char** argv){
     printf("dsp_processing.adder_coeff is not defined\n");
     return(EXIT_FAILURE);
   }
+  write_coeff_reg(fd_adc, 6, dsp_coeff.i);
 
-  /*
+/*
   for(i=0; i< 6; i++) {
-    dsp_coeff.f=0.0;
+   // dsp_coeff.f=0.0;
     write_coeff_reg(fd_adc, i, dsp_coeff.i);
   }
   dsp_coeff.f=7.0e-5; // To get DAC out with Vinput 100Hz 10V
   //dsp_coeff.f=1.0;
   write_coeff_reg(fd_adc, 5, dsp_coeff.i);
   */
-  dmaBuff = (int32_t *) malloc(DMA_ACQ_SIZE); // user space buffer for DMA data
 
+  dmaBuff = (int32_t *) malloc(DMA_ACQ_SIZE); // user space buffer for DMA data
 
   if (config_lookup_bool(&cfg, "soft_trigger", &dataCfg)){
     strigger = dataCfg;
     PDEBUG("soft_trigger = %d\n", dataCfg);
   }
 
-  if(strigger)
-    soft_trigger(fd_adc);
-  for(i=0; i< 8; i++)  //flush Fifo
-    rc = read(fd_adc, dmaBuff, DMA_ACQ_SIZE);  
-  //  for(i=0; i< 8; i++)  
-  // printf("%X ", dmaBuff[i * DMA_N_CHAN + ADC_CHAN]);
-  //printf("\n");
-
-  clock_gettime(CLOCK_MONOTONIC, &start);
-
-  stcpy.tv_sec = start.tv_sec; stcpy.tv_nsec = start.tv_nsec;
-  printf("stcpy %ld, n%ld\n", stcpy.tv_sec,  stcpy.tv_nsec );
 
   pAdcDataWrt = pAdcData;
 
@@ -406,8 +331,20 @@ int main (int argc, char** argv){
   sprintf(write_file_name,"intFdata.bin");
   fd_int =  fopen(write_file_name,"wb"); 
 
-  sprintf(write_file_name,"dac16Data.bin");
-  fd_dac =  fopen(write_file_name,"wb"); 
+  sprintf(write_file_name,"dspData.bin");
+  fd_dsp =  fopen(write_file_name,"wb"); 
+  
+  clock_gettime(CLOCK_MONOTONIC, &start);
+
+  stcpy.tv_sec = start.tv_sec; stcpy.tv_nsec = start.tv_nsec;
+  printf("stcpy %ld, n%ld\n", stcpy.tv_sec,  stcpy.tv_nsec );
+ if(strigger)
+    soft_trigger(fd_adc);
+ // for(i=0; i< 8; i++)  //flush Fifo
+  //  rc = read(fd_adc, dmaBuff, DMA_ACQ_SIZE);  
+  //  for(i=0; i< 8; i++)  
+  // printf("%X ", dmaBuff[i * DMA_N_CHAN + ADC_CHAN]);
+  //printf("\n");
                
   for(i=0; i< n_dmas; i++){
     rc = read(fd_adc, dmaBuff, DMA_ACQ_SIZE);
@@ -438,7 +375,7 @@ int main (int argc, char** argv){
   save_mem_to_disk(n_dmas);
 
   fclose(fd_data); fclose(fd_chop); 
-  fclose(fd_int);   fclose(fd_dac); 
+  fclose(fd_int);   fclose(fd_dsp); 
   free(pAdcData);
   printf("Saved file: %s\n", write_file_name);
 

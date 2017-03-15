@@ -189,7 +189,7 @@ int main (int argc, char** argv){
   for (i = 0; i < adc_n_chans; i++) {
     eo_offset[i] =   config_setting_get_int_elem(setting, i);   
     //    printf("\t#%d. %d\n",i, eo_offset[i]);
-   printf(" %d, ", eo_offset[i]);
+   printf(" %8X, ", eo_offset[i]);
   }    
   printf("\n");
 
@@ -222,11 +222,11 @@ int main (int argc, char** argv){
       data = adcData[m]; 
       adcRawSum[m] += (long int)data;
 
-      data -= eo_offset[m]; // Correct EO offset;
+      data -= eo_offset[m]; // Correct EO offset;  // 1 - neg , 0- pos (no change)
       if((chop_val & 0x1))
-	adcEOSum[m] += data;
-      else
 	adcEOSum[m] -= data;
+      else
+	adcEOSum[m] += data;
 
       adcInt[m] = (float)adcEOSum[m];
       adcInt[m] -=  wo_offset[m]*k;
@@ -256,6 +256,16 @@ int main (int argc, char** argv){
     //intCalcOff[m] = dmaBuff[(SAMP_PER_DMA-1) * N_CHAN + ADC_N_CHAN + m];
     printf("%f, ",   (float)adcEOSum[m]/readNSamples);//, offSets[m],  offSets[m] / readNSamples);
     //    printf("chan %d: %f, %f, %lf, %lf \n", m, adcCalcOff[m], adcCalcOff[m]/readNSamples, offSets[m],  offSets[m] / readNSamples);
+  }
+  printf("\nCALC WO off int: ");
+  for (m=0; m < adc_n_chans; m++){
+    fval=((float) adcEOSum[m])/readNSamples;
+    printf("%ld, ", lroundf(fval*65536.0));
+  }
+  printf("\nCALC WO off int: ");
+  for (m=adc_n_chans-1; m >=0; m--){
+    fval=((float) adcEOSum[m])/readNSamples;
+    printf("32'h%08X, ", lroundf(fval*65536.0));
   }
   printf("\n");
 
