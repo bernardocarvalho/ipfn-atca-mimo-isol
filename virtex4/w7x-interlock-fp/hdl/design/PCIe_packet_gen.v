@@ -21,8 +21,8 @@
 // Additional Comments: 
 //
 // SVN keywords
-// $Date: 2016-02-03 18:53:24 +0000 (Wed, 03 Feb 2016) $
-// $Revision: 8264 $
+// $Date: 2017-03-27 16:09:40 +0100 (Mon, 27 Mar 2017) $
+// $Revision: 10044 $
 // $URL: http://metis.ipfn.ist.utl.pt:8888/svn/cdaq/ATCA/ATCA-IO-CONTROL/IPP/W7X_INTLCK_FP/hdl/design/PCIe_packet_gen.v $
 //
 //
@@ -49,15 +49,16 @@ module PCIe_packet_gen(
 	 input trigger_n,
 
 	 input adc_chop_dly,
-// 
+	 input int_data_hold,
+	 // 
 	 input [17:0]  data_in_ch1, data_in_ch2,  data_in_ch3, data_in_ch4, data_in_ch5, data_in_ch6, 
 	 //data_in_ch7, data_in_ch8,
 //	 input [17:0]  data_in_ch9, data_in_ch10, data_in_ch11, data_in_ch12, data_in_ch13, data_in_ch14, data_in_ch15, data_in_ch16,
 	  
 	 input [15:0] reg_offset,
 	 input [31:0] reg_data,
-	 input 		  reg_wrt_en
-//	 ,	output [31:0] dsp_out
+	 input 		  reg_wrt_en,
+	 output [31:0] dsp_out
 	);
 
 `include "ADC_DAQ_pkg.v"
@@ -84,16 +85,11 @@ function signed [ADC_DATA_WIDTH-1:0] adc_chop_rec_f;
 		else
 			adc_chop_rec_f = $signed(adc_data) - $signed(off_data); 
   endfunction
- 
+
+/** Not used  
 function [FIFO_WIDTH-1:0] fifo_word32_f;
     input [ADC_DATA_WIDTH-1:0] adc_msb, adc_lsb;
 		fifo_word32_f =  {adc_msb[ADC_DATA_WIDTH-1:2], adc_lsb[ADC_DATA_WIDTH-1:2]}; //16 msb only
-  endfunction
-
-
-function  [FIFO_WIDTH-1:0] fifo_adcword32_f;
-    input [ADC_DATA_WIDTH-1:0] adc_data;
-		fifo_adcword32_f =  {{14{adc_data[ADC_DATA_WIDTH-1]}}, adc_data}; 
   endfunction
   
 function  [FIFO_WIDTH-1:0] fifo_adcword32_chop_f;
@@ -106,8 +102,6 @@ function [FIFO_WIDTH-1:0] msb_32;
     input [INTEGRAL_WIDTH:0] datain;
 		msb_32 =  datain[FRACTIONAL_WIDTH +: FIFO_WIDTH];
   endfunction
-
-	 
 	 
 function [FIFO_WIDTH-1:0] fifo_intword32_f;
     input [INTEGRAL_WIDTH-1:0] datain;
@@ -128,6 +122,15 @@ function [FIFO_WIDTH-1:0] fifo_intword32_f;
 	 	fifo_intword32_f = datashft[0 +: FIFO_WIDTH];
 	 end
   endfunction
+
+ */
+
+function  [FIFO_WIDTH-1:0] fifo_adcword32_f;
+    input [ADC_DATA_WIDTH-1:0] adc_data;
+		fifo_adcword32_f =  {{14{adc_data[ADC_DATA_WIDTH-1]}}, adc_data}; 
+  endfunction
+
+	 
 
 function  integral_overflow_f;
     input [INTEGRAL_WIDTH-1:0] int_val;	 
@@ -184,34 +187,26 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 
 			
 	/*	*/	
-	reg [32:0] clk2M_cnt = 1;
+	reg [31:0] clk2M_cnt = 1;
 	always @ (negedge wordSync_n )
 		if (!trigger_n)
 				clk2M_cnt <= 1;
 		else
 				clk2M_cnt <= clk2M_cnt + 1;										
 		
-	localparam NDLY = 2;
+	localparam NDLY = 2; // 2 sample delay for acquistion of ADC samples
 	reg [NDLY:1] wordSync_dly;
 	always @ (posedge ff_clk)
 			wordSync_dly <= {wordSync_dly[(NDLY-1):1] , wordSync_n};
 
 /*Integrator Logic*/
 	reg signed [INTEGRAL_WIDTH-1:0] adc_int[0:(N_INT_CHANNELS-1)]; // array of N_INT_CHANNELS 48-bit registers
-//	always @ (posedge wordSync_n or negedge stream_on) // 50 ns after wordSync_n
-//		if (~stream_on)
-////			for (r=0; r < N_INT_CHANNELS; r=r+1) 
-////				adc_int[r] <= 0;
-//		else
-//			for (r=0; r < N_INT_CHANNELS; r=r+1) 
-//				adc_int[r] <= integral_calc_f(adc_int[r], adc_rec[r], int_off_r[r]);
 
 	wire signed  [ADC_DATA_WIDTH-1:0] adc_rec[0:(N_INT_CHANNELS-1)]; // array of 32 17-bit vectors Phase reconstruted data samples
-
+	reg  signed  [ADC_DATA_WIDTH-1:0] last_adc_rec[0:(N_INT_CHANNELS-1)];
+	
 	reg [N_INT_CHANNELS-1:0] int_ovrflw; 
 //	wire int_ovrflw = adc_int[INTEGRAL_WIDTH-1] ^ (adc_int[INTEGRAL_WIDTH-2] | adc_int[INTEGRAL_WIDTH-3]  );
-//	reg [31:0]  dsp_accum;
-//	wire [(FLOAT_WIDTH-1):0] dataDspAdd_out;			
 
 	wire new_sample = wordSync_dly[NDLY] & (~wordSync_dly[NDLY-1]); // 20 ns delay on falling edge 2mhz wordSync_n
 	reg fifo_wr_en_r; //, write_int_en_r;	
@@ -222,7 +217,7 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 
 /*Interlock signal is sign bit of result value*/
 //	wire  interlock_i =resultDsp[FLOAT_SIGN_BIT];
-	reg  interlock_i; // =resultDsp[FLOAT_SIGN_BIT];
+	reg  interlock_i; 
 	assign interlock_out =interlock_i;
 	
 	//reg [15:0] decim_cnt = 0;//16'hFFFF;
@@ -236,10 +231,10 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 				//write_int_en_r <= 0;
 				ff_clk_cnt <= 0;
 //				decim_cnt <= 0;
-//				smpl_cnt <= 0;
-//				dsp_en_r <= 0;
-				for (r=0; r < N_INT_CHANNELS; r=r+1) 
+				for (r=0; r < N_INT_CHANNELS; r=r+1) begin
 					adc_int[r] <= 0;
+					last_adc_rec[r] <= 0;
+				end
 			end																								
 		else
 			if (new_sample) // delay on falling edge 2mhz wordSync_n
@@ -258,17 +253,20 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 				end
 			else	begin
 				ff_clk_cnt <= ff_clk_cnt + 1;										
-//				dsp_accum <= dataDspAdd_out;
 				if (ff_clk_cnt == 8'd1) 
 					for (r=0; r < N_INT_CHANNELS; r=r+1) 
 						begin
-							adc_int[r] <= integral_calc_f(adc_int[r], adc_rec[r], int_off_r[r]);
+							if(int_data_hold)
+								adc_int[r] <= integral_calc_f(adc_int[r], last_adc_rec[r], int_off_r[r]);
+							else begin
+								adc_int[r] <= integral_calc_f(adc_int[r], adc_rec[r], int_off_r[r]);
+								last_adc_rec[r] <= adc_rec[r];
+							end	
 							int_ovrflw[r] <= integral_overflow_f(adc_int[r]);
 						end
 				else if (ff_clk_cnt == 8'd6)
 					begin
 						interlock_i <= resultDsp[FLOAT_SIGN_BIT];				
-						//dsp_en_r <= 1'b1;
 					end
 //				else if (ff_clk_cnt == 8'd7) 
 //					dsp_en_r <= 1'b0;
@@ -446,7 +444,7 @@ Depth :65536 words = 256 kBytes = 4096 samples
 	  .result(resultDsp) 
 	);
 
-//	assign dsp_out=dataDspAdd[0];
+	assign dsp_out=resultDsp; //dataDspAdd[0];
 /* DAC data MUX*/
 
 /*Conversion float to int16*/
@@ -465,31 +463,5 @@ Depth :65536 words = 256 kBytes = 4096 samples
 						
 endmodule
 
-/*  Data simulation */
-/*
-   10         11         12         13         14         15         16         17         18         19
- 1024       2048       4096       8192      16384      32768      65536     131072     262144     524288
- 
-  20   			21  				22  			23  				24  			25         26           27
- 1.0486e+006  2.0972e+006  4.1943e+006  8.3886e+006  1.6777e+007  3.3554e+007  6.7109e+007  1.3422e+008
- */
-/*
-	reg [2:0] chop_dly = 0;
-	wire adchp_dly=chop_dly[2]; 
-	always @ (negedge wordSync_n)
-		chop_dly <= {chop_dly[1:0] , adc_chop};
-*/			
 
-
-	//localparam ch1_adc_off = FFFFFFFFFFF_FE8C;
-
-
-//   reg signed [31:0] int_msbs, int32_add ;
-//    reg signed [47:0] int_ext;
-//	 begin 
-//		int_msbs = int_val[47:16];
-//		int32_add = int_msbs + $signed({{14{adc_rec[17]}}, adc_rec});
-//		int_ext =  {int32_add, int_val[15:0]};
-//		integral_calc_f = int_ext + $signed({{16{int_off[31]}}, int_off});
-//	 end
 	

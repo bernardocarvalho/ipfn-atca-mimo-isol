@@ -3,23 +3,23 @@
 // Engineer: AJNB  & BBC
 //
 // Project Name:   W7X_INTLCK_FP
-// Design Name:    ATCA-GPIO-DAQ Streaming and Processing FW 16 Channels.  W7X INTERLOCK 
+// Design Name:    ATCA-GPIO-W7X INTERLOCK Streaming and Processing FW. 16 Channels.  
 // Module Name:    W7X_INTLCK_FP
 // Target Devices: XC4VFX60-11FF1152 
 //
 //Description: 
-//  		This firmware  makes the aquisition on N_ADC_CHANNELS channels at 18 bit resolution, and also the numerical integration at 8 chan using 18bit ADC data.
+//  		This firmware  makes the aquisition on N_ADC_CHANNELS channels at 18 bit resolution, and also the numerical integration at 6 channels using 18bit ADC data.
 //			It uses "chopped" ADC modules and is able to perfor ADC EO (Electonic Offset)correction and signal re-invertion.
 // 		After the signal receiving, signals are integrated and corrected for WO offset ("Wiring Offset)
 //       A convertion to single floating point (FP) format is perfoRmed on 6 channels and a calculation of the formula in performed 
 // 		Fk=Sum_(i=1..6) ( A_i *B_i) + C , using 6 +1 FP coefficients stored in user written registers
 // 		
-// 		The timing circuit is compatible with IPP uTDC timing system (see "figure" on comments below
+// 		The timing circuit is compatible with IPP uTDC timing system (see "ASCII figure" on comments below)
 //			The 8 DACs on the RTM are also connected and can be writen using dedicated PCIe 32 bit registers
 // 		Device ID is 0x0024 
 // Tested with Linux Linux fpsc-slc6-rt.local 3.10.58-rt62.60.el6rt.x86_64 #1 SMP PREEMPT RT Sat Dec 20 13:23:14 CET 2014 x86_64 x86_64 x86_64 GNU/Linux
 //
-// Copyright 2015 - 2016 IPFN-Instituto Superior Tecnico, Portugal
+// Copyright 2015 - 2017 IPFN-Instituto Superior Tecnico, Portugal
 // Creation Date  2015-06-10
 //
 // Licensed under the EUPL, Version 1.1 or - as soon they
@@ -89,7 +89,8 @@ module W7X_INTLCK_FP (
 	output AD9511_SCLK,
 	output AD9511_SDIO,
 
-	input [2:1]  RS485_RX, // 1: ext acq trigger_n, 2: ext aqc clock
+	input  RS485_RX_1, 
+	input  RS485_RX_4, 
 	output [8:1] RS485_TX,
 	output [8:1] RS485_TX_ENABLE,
 
@@ -99,10 +100,10 @@ module W7X_INTLCK_FP (
 	//input ATCA_RX_2B, //  Not Used
 	input ATCA_RX_3A, // ATCA PCIe reset input active on 0
 
-	output ATCA_TX_1A,
+	output ATCA_TX_1A, // Master ATCA Shared clock output
 	output ATCA_TX_2A, // Do not use
 	output ATCA_TX_3A, // Do not use
-	output ATCA_TX_1B, // ATCA CTTS trigger_n driver
+	output ATCA_TX_1B, // ATCA  trigger_n driver
 	output ATCA_TX_2B,
 	output ATCA_TX_1A_ENABLE,
 	output ATCA_TX_2A_ENABLE,
@@ -136,6 +137,8 @@ module W7X_INTLCK_FP (
 );
 
 `include "ADC_DAQ_pkg.v"
+
+parameter FW_VERSION = 8'hAC;
 
 /* Main ************************************************************************************************************************************/
 // Declaration of wires
@@ -242,61 +245,32 @@ wire  AD9511_output1; // Only output 1 is needed
 
 // Global clocks ***********************************************************************************************************************************************
 
-/* ATCA IPP DAQ Clock Configuration
+/* ATCA IPP DAQ Clock Configuration for Simple RTM 
 
-
- AD9511 PLL       AD9511_OUT[1] ---------------> AD9511_output1 (100 Mhz)  -> | Clock Divider | --> ADC Clock, clk_2mhz_utdc 
-                  AD9511_REF_* <----------------< AD9511_ref <----------------------|
-                                                                                    |
- ATCA Backplane:                                                                    |
-                                                                                    |
-		|---------->ATCA_RX_1A ---> (shared signal) -> (BUFG)-> ATCA_shared_clk ----->|
+																INTERNAL WIRES
+ AD9511 PLL       AD9511_OUT[1] ---------------> AD9511_output1 (100 Mhz)  -> | Clock Divider | --> ADC Clock, clk_2mhz_tte 
+                  AD9511_REF_* <----------------< AD9511_ref <------------------------|
+                                                                                      |
+ ATCA Backplane:                                                                      |
+                                                                                      |
+		|---------->ATCA_RX_1A -----> (shared signal) -> (BUFG)-> ATCA_shared_clk ----->|
  		|  			ATCA_RX_2 
 		|           ATCA_TX_3 
       |
-		|<--------  ATCA_TX_1A <---------------|                      ( master only)
-		|<--------  ATCA_TX_1B <---------------|----< ORed_trigger_n  ( master only)
-                                             |
-                                             |
-                                             | 
- RTM ->(RS485) -> RS485_RX_2 --->(BUFG)->----|           RS485_RX_2_buf (10 Mhz)
-                  RS485_RX_1 --------------------->  |detect H-2-L| --->           	(Ext trigger Activ Low)
+		|<--------  ATCA_TX_1B <---------------------< ORed_trigger_n  ( master only)
+		|<--------  ATCA_TX_1A <----------------|         ( master only)
+                                              |
+                                              |
+                                              | 
+ RTM ->(RS485) -> RS485_RX_1 --->(BUFG)->-----|           RS485_RX_1_buf (10 Mhz)
+                  RS485_RX_4 -------------------------->  |detect H-to-L| --->  	(Ext TTE trigger, Activ Low)
 
-			<--------RS485_TX[8]-----------------< clk_2mhz_utdc
-		            RTM_PRESENT -----------------------------------------> Board is Master when signal is active (low)
+		    <--------RS485_TX[5]-----------------< ADC clk_2mhz_tte
+		    <--------RS485_TX[6]-----------------< ADC Chopper Clock OUT
+		    <--------RS485_TX[7]-----------------< Interlock Signal OUT
+			
+		         RTM_PRESENT -----------------------------------------> Board is Master when signal is active (low)
 */	
-
-//	wire clk_250;
-//	IBUFGDS_LVPECL_25
-//	 BUF250 (
-//		.O(clk_250), // Clock buffer output
-//		.I(CLK_250_P), // Diff_p clock buffer input
-//		.IB(CLK_250_N) // Diff_n clock buffer input
-//	);
-//	
-////	wire  ddr_clk;
-//   reg clk2Synt;
-
-
-/*
-   reg [6:0] cnt_250;
-   always @(posedge clk_250 or posedge ATCA_reset_i)
-      if (ATCA_reset_i)
-         cnt_250 <= 0;
-      else begin
-         cnt_250[0] <= ~cnt_250[0];
-         if (cnt_250[0])
-            cnt_250[6:1] <= cnt_250[6:1] + 1;
-         if (cnt_250 == 62)
-				clk2Synt <= 1'b1;
-         if (cnt_250 == 124)
-				begin
-					clk2Synt <= 1'b0;
-					cnt_250 <= 0;
-				end
-      end
-*/
-
 
 	IBUFG
 	#(.IOSTANDARD("LVCMOS33"))
@@ -309,16 +283,16 @@ wire  AD9511_output1; // Only output 1 is needed
 	IBUFG 
 		#(.IOSTANDARD("LVCMOS33"))
 	 BUF76 (
-		.O(RS485_RX_1_buf), // 
-		.I(RS485_RX[1]) // 
+		.O(RS485_RX_1_buf), // 10MHz input clock on Simple RTM
+		.I(RS485_RX_1)  
 	);	
 
-	wire RS485_RX_2_buf;
+	wire RS485_RX_4_buf;
 	IBUFG 
 		#(.IOSTANDARD("LVCMOS33"))
 	 BUF87 (
-		.O(RS485_RX_2_buf), 
-		.I(RS485_RX[2]) // 10MHz input on RTM
+		.O(RS485_RX_4_buf), 
+		.I(RS485_RX_4) 
 	);
 
 	wire AD9511_ref =  ATCA_shared_clk;
@@ -375,16 +349,22 @@ wire  AD9511_output1; // Only output 1 is needed
 	// ************************************   Streaming synchronization *************************
 	reg stream_on_r = 1'b0;
 	
-	// **************************************RS485 Outputs **************************************
-	assign RS485_TX_ENABLE[7:1] = 7'h0;
-	assign RS485_TX_ENABLE[8] = commandREG[STREAME]; //1'b1;
+	// ************************************** RS485 Outputs **************************************
+	assign RS485_TX_ENABLE[4:1] = 4'b0000;
+	assign RS485_TX_ENABLE[5] = commandREG[STREAME];  //2 MHz ADC Sampling Clock
+	assign RS485_TX_ENABLE[6] = commandREG[STREAME];  // ADC Chopper Clock OUT 
+	assign RS485_TX_ENABLE[7] = 1'b1; //Interlock Signal OUT 
+	assign RS485_TX_ENABLE[8] = 1'b0; // Not used yet 
 
-	assign RS485_TX[7:1] = 7'hF;
+	assign RS485_TX[4:1] = 4'b1111;
 	
-	wire clk_2mhz_utdc;
+	wire clk_2mhz_tte, adc_chop_dly_i;	
 	//TESTING 
 	wire interlock_out_i;
-	assign RS485_TX[8] = interlock_out_i;//(stream_on_r)? clk_2mhz_utdc:1'b0; 
+	assign RS485_TX[5] = (stream_on_r)? clk_2mhz_tte:1'b0; 
+	assign RS485_TX[6] = (stream_on_r)? adc_chop_dly_i:1'b0; 
+	assign RS485_TX[7] = interlock_out_i; 
+	assign RS485_TX[8] = 1'b1; 
 	
 	
 /**********************************************************************************
@@ -392,12 +372,12 @@ wire  AD9511_output1; // Only output 1 is needed
 		Physical 	| 1  | 2  | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 |
 		Logical 	 	| 13 | 11 | 9 | 7 | 5 | 3 | 1 | 2 | 4 | 6  |  8 | 10 | 12 | 14 |
 ***********************************************************************************/	
-	wire [3:0] slotID = IPMC_GPIO[10:7];
 //	wire master = (slotID==4'd9)? 1'b1 : 1'b0; // Master on Slot 13 (1 physical) , Slot 6 (10 physical),  Slot 3 (6 physical)
-	wire master = ~RTM_PRESENT;  
+	wire [3:0] slotID = IPMC_GPIO[10:7];
+	wire master = ~RTM_PRESENT;  // ATCA Master Board is the one with RTM connected ( make sure only one is used)
 
 	reg [1:0] software_trig_dly;
-	reg [1:0] RS485_RX_1_delay;
+	reg [1:0] RS485_RX_4_delay;
 	reg soft_trigger_n;
 	
 	reg hard_trigger_n;
@@ -405,8 +385,8 @@ wire  AD9511_output1; // Only output 1 is needed
 		begin
 		 software_trig_dly <= {software_trig_dly[0], commandREG[STRG]}; 
 		 soft_trigger_n <= ~((~software_trig_dly[1]) & software_trig_dly[0]); // at rising edge commandREG[STRG]
-		 RS485_RX_1_delay <= {RS485_RX_1_delay[0],RS485_RX_1_buf};
-		 hard_trigger_n <= RS485_RX_1_buf | (~RS485_RX_1_delay[1]); // falling edge  RS485_RX[1]
+		 RS485_RX_4_delay <= {RS485_RX_4_delay[0],RS485_RX_4_buf};
+		 hard_trigger_n <= RS485_RX_4_buf | (~RS485_RX_4_delay[1]); // falling edge  RS485_RX[1]
 		end 
 
 	wire ATCA_trigger_n;
@@ -463,7 +443,7 @@ wire  AD9511_output1; // Only output 1 is needed
 			end
 
 
-	assign AD9511_FUNCTION = 1;//ATCA_RX_2B;
+	assign AD9511_FUNCTION = 1;
 
 	AD9511 AD9511_CONFIG (
 		.reset(1'b0),
@@ -483,7 +463,7 @@ wire  AD9511_output1; // Only output 1 is needed
 	 else 
 		begin
 			time_counter_r <= time_counter_r + 1;
-			/*de-sync DC-DC converters at startup ON Several boards*/
+			/*de-sync DC-DC converters at startup  on different boards*/
 			if (time_counter_r[15:12] == slotID) 
 				dcdc_reset_n <= 1'b1;
 		end
@@ -513,6 +493,7 @@ wire  AD9511_output1; // Only output 1 is needed
    endgenerate
 	
 	/**** DAC  Modules multiple Instatiation ******/
+	/**** DAC  are not used in Simpel RTM but code remains here...******/
 	wire [DAC_DATA_WIDTH-1:0] DAC_data_i[N_DAC_CHANNELS:1]; // array of N_DAC_CHANNELS vectors
 	wire [DAC_DATA_WIDTH-1:0] dac_out_i;
 	assign DAC_data_i[1]= dac_out_i;
@@ -597,13 +578,13 @@ wire  AD9511_output1; // Only output 1 is needed
 
 //DEBUG LEDS 1: OFF 0:ON
 	assign IPMC_GPIO_LEDS[5] = (stream_on_r)? time_counter_r[18] : time_counter_r[20];  
-	assign IPMC_GPIO_LEDS[6] = ~RS485_RX_1_buf;//~AD9511_STATUS;
+	assign IPMC_GPIO_LEDS[6] = ~AD9511_STATUS; // ~RS485_RX_4_buf;
 
 // ATCA output signals  (only for master board)
-	assign ATCA_TX_1A = RS485_RX_2_buf;//internal_clk_2MHz;  // Master: clock out
-	assign ATCA_TX_1B = ored_trigger_n; //RS485_RX[1]; 		// trigger
-	assign ATCA_TX_2A = 1'b1; //DMA_sync;
-	assign ATCA_TX_2B = 1'b1;//RT_clock; 
+	assign ATCA_TX_1A = RS485_RX_1_buf;
+	assign ATCA_TX_1B = ored_trigger_n; 	// trigger
+	assign ATCA_TX_2A = 1'b1; 
+	assign ATCA_TX_2B = 1'b1; 
 	assign ATCA_TX_3A = 1'b1;
 
 	assign ATCA_TX_1A_ENABLE = (master) ? 1'b1 : 1'b0; 
@@ -611,8 +592,6 @@ wire  AD9511_output1; // Only output 1 is needed
 	assign ATCA_TX_2A_ENABLE = 1'b0; //;
 	assign ATCA_TX_2B_ENABLE = 1'b0; 
 	assign ATCA_TX_3A_ENABLE = 0; // Never enable when ATCA PCIe controller present
-
-//	assign = ATCA_RX_1B; //trigger of atca
 
 	wire adc_chop_i;
 	assign ADCs_RESET = dcdc_reset_n;
@@ -650,10 +629,13 @@ wire  AD9511_output1; // Only output 1 is needed
 
 	wire [PCIE_DATA_WIDTH-1:0] chop_max_count_i;
 	wire [PCIE_DATA_WIDTH-1:0] chop_change_count_i;
-	wire adc_chop_dly_i; 
+	wire adc_int_data_hold_i; 
 
 /*Generate Chopper signal for ADC module*/ 
-	chop_gen CHOP_GEN (
+	CHOP_GEN #(.CHOP_DELAY(3),
+						.HOLD_SAMPLES(3)) 
+		CHOP_GEN_inst 
+		(
 		 .clk(ADCs_wordSync_n_i), 
 //		 .reset_n(commandREG[STREAME]),  TODO : sync chop...
 		 .chop_en(commandREG[CHOP_ON]), 
@@ -661,7 +643,8 @@ wire  AD9511_output1; // Only output 1 is needed
 		 .max_count(chop_max_count_i), 
 		 .change_count(chop_change_count_i), 
 		 .chop_o(adc_chop_i),
-		 .chop_dly_o(adc_chop_dly_i)
+		 .chop_dly_o(adc_chop_dly_i),
+		 .data_hold_o(adc_int_data_hold_i)
 		 );
 
 	SYSTEM_CLOCKS SYSTEM_CLOCKS_inst (
@@ -669,7 +652,7 @@ wire  AD9511_output1; // Only output 1 is needed
 		.PLL_clk_100MHz(AD9511_output1),
 		.ADCs_word_sync(ADCs_wordSync_n_i), // clk data out
 		.ADCs_start_conv_out(ADCs_start_conv_out),
-		.clk_2mhz_utdc(clk_2mhz_utdc)
+		.clk_2mhz_utdc(clk_2mhz_tte)
 	);
 
 	AD9511_CLOCKS AD9511_CLOCKS_inst (
@@ -748,9 +731,9 @@ wire  AD9511_output1; // Only output 1 is needed
 		 .trigger_n(local_trigger_n), // resets counters. Signal sync with ADCs_wordSync_n_i
 		 .acq_on(acq_r),
 //		 .time_counter(time_counter_r),
-//		 .adc_chop(adc_chop_r),
 		 .adc_chop_dly(adc_chop_dly_i),
-		  // IPP Interlock Pin OUT
+		 .int_data_hold(adc_int_data_hold_i),
+		  // IPP Interlock Input Channels Pin OUT
 		 .data_in_ch1(c_data[2]),  // 1-QXD31CE101
 		 .data_in_ch2(c_data[4]),  // 1-QXD31CE202
 		 .data_in_ch3(c_data[6]),  // 1-QXD31CE302

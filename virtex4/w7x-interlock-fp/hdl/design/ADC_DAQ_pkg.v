@@ -39,7 +39,6 @@ parameter DAC_DATA_WIDTH = 16;
 //parameter STATUS_REVID_a = {BAR1,1'b0,8'h00};
 //parameter COMMAND_a = {BAR1,1'b0,8'h01};
 
-parameter FW_VERSION = 8'hAB;
 
 //Register Address
 parameter STATUS_REVID_a = 8'd0;
