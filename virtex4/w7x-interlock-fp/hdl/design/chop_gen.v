@@ -4,10 +4,9 @@
 // Engineer:  BBC
 // 
 // Create Date:    16:02:38 05/20/2014 
-// Design Name: 
+// Design Name: 	ATCA-GPIO-W7X INTERLOCK Streaming and Processing FW. 16 Channels.
 // Module Name:    chop_gen
-// Project Name: 
-// Target Devices: 
+// Project Name: 	ATCA-GPIO-W7X INTERLOCK Streaming and Processing FW. 16 Channels.
 // Tool versions: 
 // Description: 
 //
@@ -23,7 +22,7 @@
 // $URL: http://metis.ipfn.ist.utl.pt:8888/svn/cdaq/ATCA/ATCA-IO-CONTROL/IPP/W7X_INTLCK_FP/hdl/design/chop_gen.v $
 //
 //////////////////////////////////////////////////////////////////////////////////
-module chop_gen(
+module CHOP_GEN(
     input clk,
     //input reset_n,
     input chop_en,
@@ -32,29 +31,29 @@ module chop_gen(
     input [31:0] max_count,
     output chop_o,
     output chop_dly_o,
-	 output data_hold_o
+	output data_hold_o
     );
-	parameter CHOP_DLAY = 3;
-
+	parameter CHOP_DELAY = 3; 
+	parameter HOLD_SAMPLES = 3;
+	
 	reg chop_r;
 	assign chop_o = chop_r;
 
 	reg hold_r=0;
-	reg [CHOP_DLAY:1] hold_dly = 0;
-	assign data_hold_o = hold_dly[CHOP_DLAY];// hold_r;
+	reg [CHOP_DELAY:1] hold_dly = 0;
+	assign data_hold_o = hold_dly[CHOP_DELAY];// hold_r;
 	
-	reg [CHOP_DLAY:1] chop_dly = 0;
-	assign chop_dly_o = chop_dly[CHOP_DLAY];
+	reg [CHOP_DELAY:1] chop_dly = 0;
+	assign chop_dly_o = chop_dly[CHOP_DELAY];
 	
 	
 	//wire adchp_dly=; 
 	always @ (negedge clk)
 		begin
-			chop_dly <= {chop_dly[(CHOP_DLAY-1):1], chop_r};
-			hold_dly <= {hold_dly[(CHOP_DLAY-1):1], hold_r};
+			chop_dly <= {chop_dly[(CHOP_DELAY-1):1], chop_r};
+			hold_dly <= {hold_dly[(CHOP_DELAY-1):1], hold_r};
 		end	
-		
-	localparam HOLD_SAMPLES = 3;
+
 	reg [31:0] chop_counter_r = 0; 
    always @(negedge clk or negedge chop_en)
 		if(!chop_en) 
@@ -83,4 +82,4 @@ module chop_gen(
 					end
 			end
 		
-endmodule //chop_gen
+endmodule //CHOP_GEN
