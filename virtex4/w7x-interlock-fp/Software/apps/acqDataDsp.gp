@@ -21,7 +21,7 @@ set ylabel 'DSP values'
 #set y2tics 10 nomirror tc lt 2
 #set y2range [-1:20]
 
-set title 'W7X INTLCK FP DSP Data 02/03/2017'
+set title 'W7X INTLCK FP DSP Data 22/06/2017'
 
 dfile='dspData.bin'
 #cfile='chopdata.bin'
