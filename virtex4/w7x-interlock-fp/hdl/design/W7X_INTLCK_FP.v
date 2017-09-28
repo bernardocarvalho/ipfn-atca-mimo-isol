@@ -3,7 +3,7 @@
 // Engineer: AJNB  & BBC
 //
 // Project Name:   W7X_INTLCK_FP
-// Design Name:    ATCA-GPIO-W7X INTERLOCK Streaming and Processing FW. 16 Channels.  
+// Design Name:    ATCA-MIMO-ISOL INTERLOCK Streaming and Processing FW. 16 Channels.  
 // Module Name:    W7X_INTLCK_FP
 // Target Devices: XC4VFX60-11FF1152 
 //
@@ -12,25 +12,25 @@
 //			It uses "chopped" ADC modules and is able to perfor ADC EO (Electonic Offset)correction and signal re-invertion.
 // 		After the signal receiving, signals are integrated and corrected for WO offset ("Wiring Offset)
 //       A convertion to single floating point (FP) format is perfoRmed on 6 channels and a calculation of the formula in performed 
-// 		Fk=Sum_(i=1..6) ( A_i *B_i) + C , using 6 +1 FP coefficients stored in user written registers
+// 		Fk = Sum_(i=1..6) ( A_i *B_i) + C , using 6 +1 FP coefficients stored in user written registers
 // 		
-// 		The timing circuit is compatible with IPP uTDC timing system (see "ASCII figure" on comments below)
+// 		The timing circuit is compatible with IPP TTE timing system (see "ASCII figure" on comments below)
 //			The 8 DACs on the RTM are also connected and can be writen using dedicated PCIe 32 bit registers
-// 		Device ID is 0x0024 
-// Tested with Linux Linux fpsc-slc6-rt.local 3.10.58-rt62.60.el6rt.x86_64 #1 SMP PREEMPT RT Sat Dec 20 13:23:14 CET 2014 x86_64 x86_64 x86_64 GNU/Linux
+// 		PCIe x4 Endpoint, Device ID is 0x0024 
+// 		
+// Tested with Linux  3.10.x kernel
 //
 // Copyright 2015 - 2017 IPFN-Instituto Superior Tecnico, Portugal
 // Creation Date  2015-06-10
 //
-// Licensed under the EUPL, Version 1.1 or - as soon they
+// Licensed under the EUPL, Version 1.2 or - as soon they
 // will be approved by the European Commission - subsequent
 // versions of the EUPL (the "Licence");
-
- // You may not use this work except in compliance with the
+// You may not use this work except in compliance with the
 // Licence.
 // You may obtain a copy of the Licence at:
 //
-// http://ec.europa.eu/idabc/eupl
+// https://joinup.ec.europa.eu/software/page/eupl
 //
 // Unless required by applicable law or agreed to in
 // writing, software distributed under the Licence is
@@ -39,12 +39,7 @@
 // express or implied.
 // See the Licence for the specific language governing
 // permissions and limitations under the Licence.
-
-//  	 
-// SVN keywords
-// $Date: 2016-02-03 18:57:54 +0000 (Wed, 03 Feb 2016) $
-// $Revision: 8265 $
-// $URL: http://metis.ipfn.ist.utl.pt:8888/svn/cdaq/ATCA/ATCA-IO-CONTROL/IPP/W7X_INTLCK_FP/hdl/design/W7X_INTLCK_FP.v $
+//
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -133,12 +128,9 @@ module W7X_INTLCK_FP (
 	input [3:0] PCIe_RX_N,
 	input PCIe_CLK_P,
 	input PCIe_CLK_N 
-
 );
 
 `include "ADC_DAQ_pkg.v"
-
-parameter FW_VERSION = 8'hAC;
 
 /* Main ************************************************************************************************************************************/
 // Declaration of wires
@@ -150,8 +142,6 @@ parameter FW_VERSION = 8'hAC;
 	(* KEEP="TRUE" *)wire [N_ADC_UCF_CHANNELS:1] ADC_data;
 	(* KEEP="TRUE" *)wire [N_ADC_UCF_CHANNELS:1] ADC_clock;
 
-// ADC data, clock BUFFERS
-	
    genvar r;
    generate
 		for (r=1; r <= N_ADC_UCF_CHANNELS; r=r+1) 
@@ -329,12 +319,12 @@ wire  AD9511_output1; // Only output 1 is needed
 	wire ADCs_start_conv_out;
 	OBUFDS #(
 	.CAPACITANCE("NORMAL"), // "LOW", "NORMAL", "DONT_CARE" was dont care - not supported by LVDS_25 O bufffers
-	.IOSTANDARD("LVDS_25") // Specify the output I/O standard
+	.IOSTANDARD("LVDS_25") 
 	) 
 	BUF65 (
 		.O(ADCs_START_CONV_P), // Diff_p output (connect directly to top-level port)
 		.OB(ADCs_START_CONV_N), // Diff_n output (connect directly to top-level port)
-		.I(ADCs_start_conv_out) // Buffer input
+		.I(ADCs_start_conv_out) 
 	);
 
 	assign SYSACE_MPCE = 1;
@@ -351,8 +341,8 @@ wire  AD9511_output1; // Only output 1 is needed
 	
 	// ************************************** RS485 Outputs **************************************
 	assign RS485_TX_ENABLE[4:1] = 4'b0000;
-	assign RS485_TX_ENABLE[5] = commandREG[STREAME];  //2 MHz ADC Sampling Clock
-	assign RS485_TX_ENABLE[6] = commandREG[STREAME];  // ADC Chopper Clock OUT 
+	assign RS485_TX_ENABLE[5] = commandREG[STREAME_BIT];  //2 MHz ADC Sampling Clock
+	assign RS485_TX_ENABLE[6] = commandREG[STREAME_BIT];  // ADC Chopper Clock OUT 
 	assign RS485_TX_ENABLE[7] = 1'b1; //Interlock Signal OUT 
 	assign RS485_TX_ENABLE[8] = 1'b0; // Not used yet 
 
@@ -370,9 +360,8 @@ wire  AD9511_output1; // Only output 1 is needed
 /**********************************************************************************
 		ATCA Slot Numbering on 14 slot Crates
 		Physical 	| 1  | 2  | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 |
-		Logical 	 	| 13 | 11 | 9 | 7 | 5 | 3 | 1 | 2 | 4 | 6  |  8 | 10 | 12 | 14 |
+		Logical 	 	| 13 | 11 | 9 | 7 | 5 | 3 | 1 | 2 | 4 |  6 |  8 | 10 | 12 | 14 |
 ***********************************************************************************/	
-//	wire master = (slotID==4'd9)? 1'b1 : 1'b0; // Master on Slot 13 (1 physical) , Slot 6 (10 physical),  Slot 3 (6 physical)
 	wire [3:0] slotID = IPMC_GPIO[10:7];
 	wire master = ~RTM_PRESENT;  // ATCA Master Board is the one with RTM connected ( make sure only one is used)
 
@@ -383,7 +372,7 @@ wire  AD9511_output1; // Only output 1 is needed
 	reg hard_trigger_n;
 	always @ (negedge ADCs_wordSync_n_i)
 		begin
-		 software_trig_dly <= {software_trig_dly[0], commandREG[STRG]}; 
+		 software_trig_dly <= {software_trig_dly[0], commandREG[STRG_BIT]}; 
 		 soft_trigger_n <= ~((~software_trig_dly[1]) & software_trig_dly[0]); // at rising edge commandREG[STRG]
 		 RS485_RX_4_delay <= {RS485_RX_4_delay[0],RS485_RX_4_buf};
 		 hard_trigger_n <= RS485_RX_4_buf | (~RS485_RX_4_delay[1]); // falling edge  RS485_RX[1]
@@ -397,20 +386,20 @@ wire  AD9511_output1; // Only output 1 is needed
 		.I(ATCA_RX_1B) // 
 	);
 
-	/*Both triggers are ORed*/
+	/*Both triggers are ORed before sending to ATCA Backplane*/
 	wire ored_trigger_n = soft_trigger_n & hard_trigger_n;
 	
 	wire  local_trigger_n = (master)? ATCA_trigger_n : (ATCA_trigger_n & soft_trigger_n ); // if slave, trigger on own soft trigger
 
-	reg  acq_r = 0; //  used on RT_FIFO must be befro stream en??
-
+	reg  acq_r = 0; 
+	
 	localparam s1=3'b001;
 	localparam s2=3'b010;
 	localparam s3=3'b100;
 	(* FSM_ENCODING="ONE-HOT", SAFE_IMPLEMENTATION="YES", SAFE_RECOVERY_STATE="3'b001" *) 
 	reg [2:0] regs_state = s1;
-	always @(negedge ADCs_wordSync_n_i or negedge commandREG[ACQE])
-			if (!commandREG[ACQE])
+	always @(negedge ADCs_wordSync_n_i or negedge commandREG[ACQE_BIT])
+			if (!commandREG[ACQE_BIT])
 				begin
 					regs_state <= s1;
 					stream_on_r <= 1'b0;
@@ -422,7 +411,7 @@ wire  AD9511_output1; // Only output 1 is needed
 					s1: 				// idle / reset: reached after a reset or ACQE = 0 IOCTL
 						begin
 							acq_r <= 1'b1;
-							if (commandREG[STREAME])
+							if (commandREG[STREAME_BIT])
 								regs_state <= s2;
 						end
 					s2:					// waiting on hard/soft trigger (trigger_n / STREAME IOCTL) or un-arm (ACQE disable IOCTL)
@@ -469,7 +458,7 @@ wire  AD9511_output1; // Only output 1 is needed
 		end
 
 
-	/**** ADC  Modules multiple Instatiation ******/
+	/**** ADC  Modules multiple Instantiation ******/
 	wire [(ADC_DATA_WIDTH-1):0] c_data[N_ADC_UCF_CHANNELS:1]; // array of N_ADC_CHANNELS vectors
 	wire [N_ADC_UCF_CHANNELS:1] ADC_clock_c; // corrected clock array  
 
@@ -499,49 +488,6 @@ wire  AD9511_output1; // Only output 1 is needed
 	assign DAC_data_i[1]= dac_out_i;
 	assign DAC_data_i[2]= time_counter_r[22:7];
 	
-	/*
-	//  DAC 1 : Using Time counter ISTTOK board Ch1 not good
-	DAC_2Mhz DAC_1(
-		.reset(ATCA_reset_i),
-		.data_i(dac_out_i),
-		.data_clock_n(ADCs_wordSync_n_i),
-		.serial_clock_i(PCIe_trn_clk),
-		.serial_data(DAC_s_data[1]),
-		.word_sync(DAC_ENABLE[1]),
-		.DAC_reset(DAC_RESET[1])
-	);
-
-	// DAC 2 
-	DAC_2Mhz DAC_2(
-		.reset(ATCA_reset_i),
-		.data_i(time_counter_r[22:7]),
-		.data_clock_n(ADCs_wordSync_n_i),
-		.serial_clock_i(PCIe_trn_clk),
-		.serial_data(DAC_s_data[2]),
-		.word_sync(DAC_ENABLE[2]),
-		.DAC_reset(DAC_RESET[2])
-	);
-//		DAC DAC_2 (
-//			.reset(ATCA_reset_i),
-//			.DAC_data(DAC_data_i[1]),
-//			.DAC_clock(PCIe_trn_clk),
-//			.DAC_serial_data(DAC_s_data[2]),
-//			.DAC_word_sync(DAC_ENABLE[2]),
-//			.DAC_reset(DAC_RESET[2])		
-//		);
-
-
-	 DAC 3 : Using DSP dac out
-	DAC_2Mhz DAC_3(
-		.reset(ATCA_reset_i),
-		.data_i(dac_out_i),
-		.data_clock_n(ADCs_wordSync_n_i),
-		.serial_clock_i(PCIe_trn_clk),
-		.serial_data(DAC_s_data[3]),
-		.word_sync(DAC_ENABLE[3]),
-		.DAC_reset(DAC_RESET[3])
-	);
- */
 	/* DACs 1 to 8*/
   generate
       for (r=1; r <= N_DAC_CHANNELS; r=r+1) 
@@ -562,7 +508,7 @@ wire  AD9511_output1; // Only output 1 is needed
 
 	wire PCIe_wr_en, PCIe_wr_busy, PCIe_pio_reset_n, PCIe_start_int ;
 	wire PCIe_dma_rd_en, PCIe_dma_start,  cfg_interrupt_msienable; 
-	//dmac_i,
+
 	wire [31:0] PCIe_dma_data;
 
 	wire dma_data_ready_i;
@@ -571,12 +517,12 @@ wire  AD9511_output1; // Only output 1 is needed
 	wire [31:0] statusdREG =
 			{4'h0,								                          3'h0, ~ATCA_trigger_n,   		
 			 1'b0, AD9511_STATUS, master, cfg_interrupt_msienable,               slotID, 
-			 commandREG[STREAME], PCIe_dma_rd_en, PCIe_dma_start, dma_data_ready_i,	  2'b0, ~soft_trigger_n,  acq_r,   		
+			 commandREG[STREAME_BIT], PCIe_dma_rd_en, PCIe_dma_start, dma_data_ready_i,	  2'b0, ~soft_trigger_n,  acq_r,   		
 			 FW_VERSION}; 
 	
 	wire irq_dma_i; // pulse flag
 
-//DEBUG LEDS 1: OFF 0:ON
+//FRONT PANEL LEDS 1: OFF 0:ON
 	assign IPMC_GPIO_LEDS[5] = (stream_on_r)? time_counter_r[18] : time_counter_r[20];  
 	assign IPMC_GPIO_LEDS[6] = ~AD9511_STATUS; // ~RS485_RX_4_buf;
 
@@ -600,7 +546,7 @@ wire  AD9511_output1; // Only output 1 is needed
 	//assign  PCIe_start_int = (irq_dma_i && commandREG[DMAiE]) ||  (irq_acqc_i && commandREG[ACQiE] ); 
 	assign PCIe_start_int = irq_dma_i;
 
-	/**** Modules Instatiation ******/
+	/**** Verilog Modules Instantiation ******/
 
 	wire [PCIE_DATA_WIDTH-1:2] PCIe_dma_addr;
 	/******************** PCIe BLACK BOX ********************/
@@ -632,14 +578,15 @@ wire  AD9511_output1; // Only output 1 is needed
 	wire adc_int_data_hold_i; 
 
 /*Generate Chopper signal for ADC module*/ 
-	CHOP_GEN #(.CHOP_DELAY(3),
-						.HOLD_SAMPLES(3)) 
+	CHOP_GEN #(									//.CHOP_DELAY(3),
+			.HOLD_SAMPLES(HOLD_SAMPLES)
+	    ) 
 		CHOP_GEN_inst 
 		(
 		 .clk(ADCs_wordSync_n_i), 
 //		 .reset_n(commandREG[STREAME]),  TODO : sync chop...
-		 .chop_en(commandREG[CHOP_ON]), 
-		 .chop_default(commandREG[CHOP_DEFAULT]), 
+		 .chop_en(commandREG[CHOP_ON_BIT]), 
+		 .chop_default(commandREG[CHOP_DEFAULT_BIT]), 
 		 .max_count(chop_max_count_i), 
 		 .change_count(chop_change_count_i), 
 		 .chop_o(adc_chop_i),
@@ -648,7 +595,6 @@ wire  AD9511_output1; // Only output 1 is needed
 		 );
 
 	SYSTEM_CLOCKS SYSTEM_CLOCKS_inst (
-		//.ATCA_2MHz_clock(ATCA_2MHz_shared), 
 		.PLL_clk_100MHz(AD9511_output1),
 		.ADCs_word_sync(ADCs_wordSync_n_i), // clk data out
 		.ADCs_start_conv_out(ADCs_start_conv_out),
@@ -668,7 +614,7 @@ wire  AD9511_output1; // Only output 1 is needed
 	wire [31:0] reg_data_i;
 	wire  reg_wrt_en_i;
 	wire [31:2] PCIe_dma_init_addr;
-	wire [15:0] int_decimate_i;
+	//wire [15:0] int_decimate_i;
 	
 	PCIE_BAR1_REGISTERS inst_REGS (
 		 .trn_clk(PCIe_trn_clk),  
@@ -689,7 +635,7 @@ wire  AD9511_output1; // Only output 1 is needed
 		 .REG_OFFSET(reg_off_i),
 		 .REG_DATA(reg_data_i),
 		 .reg_wrt_en(reg_wrt_en_i),
-		 .INTEGR_DECIM(int_decimate_i),
+		 //.INTEGR_DECIM(int_decimate_i),
 		 //.DAC_1_data(DAC_data_i[1]), // driven by DSP calculation
 		 //.DAC_2_data(DAC_data_i[2]), // driven by time counter (voltage ramp)
 		 .DAC_3_data(DAC_data_i[3]),	 // driven by PCIe register
@@ -733,13 +679,14 @@ wire  AD9511_output1; // Only output 1 is needed
 //		 .time_counter(time_counter_r),
 		 .adc_chop_dly(adc_chop_dly_i),
 		 .int_data_hold(adc_int_data_hold_i),
-		  // IPP Interlock Input Channels Pin OUT
-		 .data_in_ch1(c_data[2]),  // 1-QXD31CE101
-		 .data_in_ch2(c_data[4]),  // 1-QXD31CE202
-		 .data_in_ch3(c_data[6]),  // 1-QXD31CE302
-		 .data_in_ch4(c_data[8]),  // 1-QXD31CE402
-		 .data_in_ch5(c_data[10]), // 1-QXD31CE002
-		 .data_in_ch6(c_data[12]), // 1-QXD40CE002
+		  // IPP W7-X Interlock Input ADC Channels 
+		 .data_in_ch1(c_data[1]),  // 1-QXD31CE101 (compensation coil 1), in url coda-station count channel number: 0
+		 .data_in_ch2(c_data[3]),  // 1-QXD31CE201 (compensation coil 2), in url coda-station count channel number: 2
+		 .data_in_ch3(c_data[5]),  // 1-QXD31CE301 (compensation coil 3), in url coda-station count channel number: 4
+		 .data_in_ch4(c_data[7]),  // 1-QXD31CE401 (compensation coil 4), in url coda-station count channel number: 6
+		 .data_in_ch5(c_data[9]),  // 1-QXD31CE001 (diamagnetic loop), in url coda-station count channel number: 8
+		 .data_in_ch6(c_data[11]), // 1-QXR40CE001 -  Rogowski coil, in url coda-station count channel number: 10
+		 
 //		 .data_in_ch1(c_data[1]),  
 //		 .data_in_ch2(c_data[2]), 
 //		 .data_in_ch3(c_data[3]), 

@@ -22,7 +22,11 @@
 // $URL: http://metis.ipfn.ist.utl.pt:8888/svn/cdaq/ATCA/ATCA-IO-CONTROL/IPP/W7X_INTLCK_FP/hdl/design/chop_gen.v $
 //
 //////////////////////////////////////////////////////////////////////////////////
-module CHOP_GEN(
+module CHOP_GEN #
+(
+	parameter HOLD_SAMPLES = 3 // Ignore 3 samples in Integral calculation
+)
+(
     input clk,
     //input reset_n,
     input chop_en,
@@ -33,8 +37,8 @@ module CHOP_GEN(
     output chop_dly_o,
 	output data_hold_o
     );
-	parameter CHOP_DELAY = 3; 
-	parameter HOLD_SAMPLES = 3;
+	 
+	localparam CHOP_DELAY = 3;  // Compensate digital delay for output
 	
 	reg chop_r;
 	assign chop_o = chop_r;
