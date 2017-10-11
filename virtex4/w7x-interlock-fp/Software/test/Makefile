@@ -7,7 +7,7 @@ CFLAGS += -I$(IDIR)
 OBJ = atca-ioc-int-lib.o 
 DEPS = atca-ioc-int-lib.h common.h
 LDFLAGS =  -lrt -lconfig -lm
-
+VPATH=../lib
 default: testDAC 
 
 %.o: %.c $(DEPS)

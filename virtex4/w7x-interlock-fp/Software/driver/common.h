@@ -1,7 +1,7 @@
 /**
  * ATCA IO CONTROL Integrator
  * Linux Device Driver
- * Internal definitions for all parts (prototypes, data, macros) 
+ * Internal definitions for all parts (prototypes, data, macros)
  *
  * SVN keywords
  * $Date: 2015-01-07 19:47:54 +0000 (Wed, 07 Jan 2015) $
@@ -100,19 +100,6 @@ typedef struct _PCIE_HREGS {
   volatile u32              reg_offset;          /*Offset 0xC8 (d50)*/
   volatile u32              reg_data;            /*Offset 0xCC */
 
-  //volatile u32              dmaOffSet;          /*Offset 0x64*/
-  //volatile u32              _reserved3;         /*Offset 0x68*/
-  //volatile u32              _reserved4;         /*Offset 0x6C*/
-  //volatile u32              acqByteSize;        /*Offset 0x70 */
-
-  /* volatile u32              ADC_data_pos_a;      /\*Offset 0xB0 *\/ */
-  /* volatile u32              ADC_data_neg_a;      /\*Offset 0xB4 *\/ */
-  /* volatile u32              ADC_data_offset_a;      /\*Offset 0xB8 *\/ */
-
-  /* volatile u32              counter_offset_p_a;      /\*Offset 0xBC *\/ */
-  /* volatile u32              counter_offset_n_a;      /\*Offset 0xC0 *\/ */
-  /* volatile u32              counter_offset_i_a;      /\*Offset 0xC4 *\/ */
-
 } PCIE_HREGS;
 
 /*Structure for pcie access*/
@@ -150,7 +137,7 @@ typedef struct _PCIE_DEV {
 
 /*************************************************************************/
 /* Some nice defines that make code more readable */
-/* This is to print nice info in the log 
+/* This is to print nice info in the log
 
 #ifdef DEBUG
 #define mod_info( args... ) \

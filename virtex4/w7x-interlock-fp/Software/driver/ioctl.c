@@ -30,8 +30,8 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
 
   int err = 0, retval = 0;
   unsigned long  flags  = 0;
-  u32 tmp; 
-  COMMAND_REG    cReg;  
+  u32 tmp;
+  COMMAND_REG    cReg;
   PCIE_DEV *pciDev; /* for device information */
   STATUS_REG sReg;
 
@@ -41,7 +41,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
   sReg.reg32 = ioread32( (void*) &pciDev->pHregs->status);
   if(sReg.reg32 == 0xFFFFFFFF)
     PDEBUG("ioctl status Reg:0x%X, cmd: 0x%X, 0x%08X\n", sReg.reg32, cmd, PCIE_ATCA_IOCT_ACQ_DISABLE);
-  
+
   /**
    * extract the type and number bitfields, and don't decode
    * wrong cmds: return ENOTTY (inappropriate ioctl) before access_ok()
@@ -65,7 +65,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
   case PCIE_ATCA_IOCG_STATUS:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
     //  ----- ----- ----- ----- ----- DEVICE SPECIFIC CODE ----- ----- ----- ----- ----- -----
-    tmp = PCIE_READ32((void*) &pciDev->pHregs->status); 
+    tmp = PCIE_READ32((void*) &pciDev->pHregs->status);
     //  ----- ----- ----- ----- ----- DEVICE SPECIFIC CODE ----- ----- ----- ----- ----- -----
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
 
@@ -106,8 +106,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     break;
-
-  case PCIE_ATCA_IOCT_ACQ_DISABLE : 
+  case PCIE_ATCA_IOCT_ACQ_DISABLE :
     retval = pciDev->max_buffer_count;
     spin_lock_irqsave(&pciDev->irq_lock, flags);
     // ----- ----- ----- ----- ----- ----- DEVICE SPECIFIC CODE ----- ----- ----- ----- ----- -----
@@ -117,8 +116,23 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
     // ----- ----- ----- ----- ----- ----- DEVICE SPECIFIC CODE ----- ----- ----- ----- ----- -----
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-	
     break;
+
+  case PCIE_ATCA_IOCT_BIG_ENDIAN:
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
+    cReg.reg32=PCIE_READ32((void*) &pciDev->pHregs->command);
+    cReg.cmdFlds.BIG_ENDN = 1;
+    PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
+    spin_unlock_irqrestore(&pciDev->irq_lock, flags);
+    break;
+  case PCIE_ATCA_IOCT_LITTLE_ENDIAN:
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
+    cReg.reg32=PCIE_READ32((void*) &pciDev->pHregs->command);
+    cReg.cmdFlds.BIG_ENDN = 0;
+    PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
+    spin_unlock_irqrestore(&pciDev->irq_lock, flags);
+    break;
+
   case PCIE_ATCA_IOCT_DMA_ENABLE:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
     // ----- ----- ----- ----- ----- ----- DEVICE SPECIFIC CODE ----- ----- ----- ----- ----- -----
@@ -129,7 +143,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
 
     break;
-  case PCIE_ATCA_IOCT_DMA_DISABLE : 
+  case PCIE_ATCA_IOCT_DMA_DISABLE :
     spin_lock_irqsave(&pciDev->irq_lock, flags);
     // ----- ----- ----- ----- ----- ----- DEVICE SPECIFIC CODE ----- ----- ----- ----- ----- -----
     cReg.reg32=PCIE_READ32((void*) &pciDev->pHregs->command);
@@ -137,12 +151,12 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
     // ----- ----- ----- ----- ----- ----- DEVICE SPECIFIC CODE ----- ----- ----- ----- ----- -----
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-	
+
     break;
 
   case PCIE_ATCA_IOCG_COUNTER:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
-    tmp = PCIE_READ32((void*) &pciDev->pHregs->hwcounter); 
+    tmp = PCIE_READ32((void*) &pciDev->pHregs->hwcounter);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     if(copy_to_user((void __user *)arg, &tmp, sizeof(u32)))
       return -EFAULT;
@@ -165,7 +179,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     break;
 
     /**
-     ** Not used yet in this Board 
+     ** Not used yet in this Board
   case PCIE_ATCA_IOCT_CLOCKS_SHARED:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
     // ----- ----- ----- ----- ----- ----- DEVICE SPECIFIC CODE ----- ----- ----- ----- ----- -----
@@ -214,7 +228,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
   case  PCIE_ATCA_IOCS_DMA_SIZE:
     retval = __get_user(tmp, (int __user *)arg);
     if (!retval){
-      spin_lock_irqsave(&pciDev->irq_lock, flags);    
+      spin_lock_irqsave(&pciDev->irq_lock, flags);
       iowrite32(tmp, (void*) &pciDev->pHregs->dmaNbytes);  // write the buffer size to the FPGA
       spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     }
@@ -228,23 +242,23 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
       return -EFAULT;
     break;
 
-  case  PCIE_ATCA_IOCS_DMA_THRES:
+/*  case  PCIE_ATCA_IOCS_DMA_THRES:
     retval = __get_user(tmp, (int __user *)arg);
     if (!retval){
-      spin_lock_irqsave(&pciDev->irq_lock, flags);    
-      iowrite32(tmp, (void*) &pciDev->pHregs->dmaNThres);  
+      spin_lock_irqsave(&pciDev->irq_lock, flags);
+      iowrite32(tmp, (void*) &pciDev->pHregs->dmaNThres);
       spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     }
     break;
 
   case PCIE_ATCA_IOCG_DMA_THRES:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
-    tmp = ioread32((void*) &pciDev->pHregs->dmaNThres);  
+    tmp = ioread32((void*) &pciDev->pHregs->dmaNThres);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     if(copy_to_user((void __user *)arg, &tmp, sizeof(u32)))
       return -EFAULT;
     break;
-
+*/
   case PCIE_ATCA_IOCT_STREAM_ENABLE:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
 
@@ -255,7 +269,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     break;
 
-  case PCIE_ATCA_IOCT_STREAM_DISABLE : 
+  case PCIE_ATCA_IOCT_STREAM_DISABLE :
     retval = pciDev->mismatches;
     spin_lock_irqsave(&pciDev->irq_lock, flags);
     // ----- ----- ----- ----- ----- ----- DEVICE SPECIFIC CODE ----- ----- ----- ----- ----- -----
@@ -264,7 +278,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
     // ----- ----- ----- ----- ----- ----- DEVICE SPECIFIC CODE ----- ----- ----- ----- ----- -----
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-	
+
     break;
     /**
        case  PCIE_ATCA_IOCS_ATCA_OFF:
@@ -275,23 +289,23 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
        for (i=0; i< 16; i++)
        printk("i:%d o:%d", i,  off_s.offset[i]);
        //, off_s.offset[1], off_s.offset[2] );
-       spin_lock_irqsave(&pciDev->irq_lock, flags);    
+       spin_lock_irqsave(&pciDev->irq_lock, flags);
        //for (i=0; i< 16; i++)
        //PCIE_WRITE32(off_s.offset[i], (void*) &pciDev->pHregs->offset_adc[i]);
 
        //    memcpy_toio((void*) &pciDev->pHregs->offset_adc[0], &off_s, sizeof(OFFSET_REGS));
 
        //write ADC OffSet
-       //      PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->dmaOffSet);    
-       //   		printk(KERN_DEBUG "pcieAdc ioctl dmaOffSet 0x%08X\n", 
-       // 			PCIE_READ32((void*) &pciDev->pHregs->dmaOffSet));    
+       //      PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->dmaOffSet);
+       //   		printk(KERN_DEBUG "pcieAdc ioctl dmaOffSet 0x%08X\n",
+       // 			PCIE_READ32((void*) &pciDev->pHregs->dmaOffSet));
        spin_unlock_irqrestore(&pciDev->irq_lock, flags);
 
        break;
     */
     /*
       case  PCIE_ATCA_IOCG_ATCA_OFF:
-      spin_lock_irqsave(&pciDev->irq_lock, flags);    
+      spin_lock_irqsave(&pciDev->irq_lock, flags);
       for (i=0; i< 16; i++)
       off_s.offset[i]=PCIE_READ32( (void*) &pciDev->pHregs->offset_adc[i]);
 
@@ -300,7 +314,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
       printk("PCIE_ATCA_IOCG_ATCA_OFF");
       for (i=0; i< 16; i++)
       printk("i:%d o:%d", i, off_s.offset[i]);
-      //    printk("offs read: %d, %d, %d\n", 
+      //    printk("offs read: %d, %d, %d\n",
       //	   off_s.offset[0], off_s.offset[1], off_s.offset[2] );
 
       if(copy_to_user((void __user *)arg, &off_s, sizeof(OFFSET_REGS)))
@@ -309,7 +323,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
       break;
       /////////////////////////////////////////////////////////////
       */
-  case PCIE_ATCA_IOCT_CHOP_ON: 
+  case PCIE_ATCA_IOCT_CHOP_ON:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
 
     cReg.reg32=PCIE_READ32((void*) &pciDev->pHregs->command);
@@ -317,10 +331,10 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
 
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-	
+
     break;
 
-  case PCIE_ATCA_IOCT_CHOP_OFF: 
+  case PCIE_ATCA_IOCT_CHOP_OFF:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
 
     cReg.reg32=PCIE_READ32((void*) &pciDev->pHregs->command);
@@ -328,10 +342,10 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
 
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-	
+
     break;
 
-  case PCIE_ATCA_IOCT_CHOP_DEFAULT_1: 
+  case PCIE_ATCA_IOCT_CHOP_DEFAULT_1:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
 
     cReg.reg32=PCIE_READ32((void*) &pciDev->pHregs->command);
@@ -339,10 +353,10 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
 
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-	
+
     break;
 
-  case PCIE_ATCA_IOCT_CHOP_DEFAULT_0: 
+  case PCIE_ATCA_IOCT_CHOP_DEFAULT_0:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
 
     cReg.reg32=PCIE_READ32((void*) &pciDev->pHregs->command);
@@ -350,7 +364,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
 
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-	
+
     break;
 
   case  PCIE_ATCA_IOCS_CHOP_MAX_COUNT:
@@ -358,14 +372,14 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
       return -EFAULT;
     PDEBUG("PCIE_ATCA_IOCS_CHOP_MAX_COUNT,  Chop:%d", tmp);
 
-    spin_lock_irqsave(&pciDev->irq_lock, flags);    
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
     PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->chop_max_count);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-    
+
     break;
 
   case  PCIE_ATCA_IOCG_CHOP_MAX_COUNT:
-    spin_lock_irqsave(&pciDev->irq_lock, flags);    
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
     tmp=PCIE_READ32( (void*) &pciDev->pHregs->chop_max_count);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     PDEBUG("PCIE_ATCA_IOCG_CHOP_MAX_COUNT,  Chop:%d", tmp);
@@ -380,14 +394,14 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
       return -EFAULT;
     PDEBUG("PCIE_ATCA_IOCS_CHANGE_COUNT,  Chop:%d", tmp);
 
-    spin_lock_irqsave(&pciDev->irq_lock, flags);    
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
     PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->chop_change_count);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-    
+
     break;
 
     /////////////////////////////////////////////////////
-  case PCIE_ATCA_IOCT_CHOP_RECONSTRUCT_ON: 
+  case PCIE_ATCA_IOCT_CHOP_RECONSTRUCT_ON:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
 
     cReg.reg32=PCIE_READ32((void*) &pciDev->pHregs->command);
@@ -395,10 +409,10 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
 
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-	
+
     break;
 
-  case PCIE_ATCA_IOCT_CHOP_RECONSTRUCT_OFF: 
+  case PCIE_ATCA_IOCT_CHOP_RECONSTRUCT_OFF:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
 
     cReg.reg32=PCIE_READ32((void*) &pciDev->pHregs->command);
@@ -406,11 +420,11 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
 
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-	
+
     break;
     ///////////////////////////////////////////////////
     ///////////////////////////////////////////////////
-  case PCIE_ATCA_IOCT_OFFSET_CALC_ON: 
+  case PCIE_ATCA_IOCT_OFFSET_CALC_ON:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
 
     cReg.reg32=PCIE_READ32((void*) &pciDev->pHregs->command);
@@ -418,10 +432,10 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
 
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-	
+
     break;
 
-  case PCIE_ATCA_IOCT_OFFSET_CALC_OFF: 
+  case PCIE_ATCA_IOCT_OFFSET_CALC_OFF:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
 
     cReg.reg32=PCIE_READ32((void*) &pciDev->pHregs->command);
@@ -429,7 +443,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
 
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-	
+
     break;
 
   case  PCIE_ATCA_IOCS_DAC_1_DATA:
@@ -438,61 +452,61 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
 
     PDEBUGG("PCIE_ATCA_IOCS_DAC_1_DATA, DAC:%d\n", tmp);
 
-    spin_lock_irqsave(&pciDev->irq_lock, flags);    
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
     PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->dac_data[0]);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-      
+
     break;
 
   case  PCIE_ATCA_IOCS_DAC_2_DATA:
     if(copy_from_user(&tmp, (void __user *)arg, sizeof(tmp)))
       return -EFAULT;
     PDEBUGG("PCIE_ATCA_IOCS_DAC_2_DATA, DAC:%d\n", tmp);
-    spin_lock_irqsave(&pciDev->irq_lock, flags);    
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
     PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->dac_data[1]);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-      
+
     break;
 
   case  PCIE_ATCA_IOCS_DAC_3_DATA:
     if(copy_from_user(&tmp, (void __user *)arg, sizeof(tmp)))
       return -EFAULT;
-    spin_lock_irqsave(&pciDev->irq_lock, flags);    
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
     PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->dac_data[2]);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     break;
   case  PCIE_ATCA_IOCS_DAC_4_DATA:
     if(copy_from_user(&tmp, (void __user *)arg, sizeof(tmp)))
       return -EFAULT;
-    spin_lock_irqsave(&pciDev->irq_lock, flags);    
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
     PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->dac_data[3]);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     break;
   case  PCIE_ATCA_IOCS_DAC_5_DATA:
     if(copy_from_user(&tmp, (void __user *)arg, sizeof(tmp)))
       return -EFAULT;
-    spin_lock_irqsave(&pciDev->irq_lock, flags);    
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
     PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->dac_data[4]);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     break;
   case  PCIE_ATCA_IOCS_DAC_6_DATA:
     if(copy_from_user(&tmp, (void __user *)arg, sizeof(tmp)))
       return -EFAULT;
-    spin_lock_irqsave(&pciDev->irq_lock, flags);    
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
     PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->dac_data[5]);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     break;
   case  PCIE_ATCA_IOCS_DAC_7_DATA:
     if(copy_from_user(&tmp, (void __user *)arg, sizeof(tmp)))
       return -EFAULT;
-    spin_lock_irqsave(&pciDev->irq_lock, flags);    
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
     PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->dac_data[6]);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     break;
   case  PCIE_ATCA_IOCS_DAC_8_DATA:
     if(copy_from_user(&tmp, (void __user *)arg, sizeof(tmp)))
       return -EFAULT;
-    spin_lock_irqsave(&pciDev->irq_lock, flags);    
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
     PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->dac_data[7]);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     break;
@@ -501,16 +515,16 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     if(copy_from_user(&tmp, (void __user *)arg, sizeof(tmp)))
       return -EFAULT;
     PDEBUG("PCIE_ATCA_IOCS_REG_OFF, :%d\n", tmp);
-    spin_lock_irqsave(&pciDev->irq_lock, flags);    
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
     PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->reg_offset);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     break;
- 
+
  case  PCIE_ATCA_IOCS_REG_DATA:
     if(copy_from_user(&tmp, (void __user *)arg, sizeof(tmp)))
       return -EFAULT;
     PDEBUG("PCIE_ATCA_IOCS_REG_DATA, :%d\n", tmp);
-    spin_lock_irqsave(&pciDev->irq_lock, flags);    
+    spin_lock_irqsave(&pciDev->irq_lock, flags);
     PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->reg_data);
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
     break;
@@ -599,7 +613,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
 
     //////////////////////////////////////////////////////
 
-  case PCIE_ATCA_IOCT_INTEGRAL_CALC_ON: 
+  case PCIE_ATCA_IOCT_INTEGRAL_CALC_ON:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
 
     cReg.reg32=PCIE_READ32((void*) &pciDev->pHregs->command);
@@ -607,10 +621,10 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
 
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-	
+
     break;
 
-  case PCIE_ATCA_IOCT_INTEGRAL_CALC_OFF: 
+  case PCIE_ATCA_IOCT_INTEGRAL_CALC_OFF:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
 
     cReg.reg32=PCIE_READ32((void*) &pciDev->pHregs->command);
@@ -618,7 +632,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
 
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-	
+
     break;
 
   default:  /* redundant, as cmd was checked against MAXNR */
@@ -636,12 +650,12 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
 
        printk("PCIE_ATCA_IOCS_COUNTER_INTEGRAL");
        printk("Counter Integral:%d", tmp);
-       spin_lock_irqsave(&pciDev->irq_lock, flags);    
+       spin_lock_irqsave(&pciDev->irq_lock, flags);
 
        PCIE_WRITE32(tmp, (void*) &pciDev->pHregs->COUNTER_INTEGRAL_a);
 
        spin_unlock_irqrestore(&pciDev->irq_lock, flags);
-    
+
        break;
 
     */

@@ -1,7 +1,7 @@
 /**
  * ATCA IO CONTROL Integrator
  * Project Name:   W7-X ATCA DAQ
- * Design Name:    ATCA-GPIO-DAQ Streaming and processing FW 16 Channels 32Bit 
+ * Design Name:    ATCA-GPIO-DAQ Streaming and processing FW 16 Channels 32Bit
  * Linux Device Driver
  * PCI Device Id: 24
  * FW Version AA
@@ -14,7 +14,7 @@
  *
  * Copyright 2014 - 2015 IPFN-Instituto Superior Tecnico, Portugal
  * Creation Date  2014-02-10
- * 
+ *
  * Licensed under the EUPL, Version 1.1 or - as soon they
  * will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -104,10 +104,10 @@ int _pcie_open(struct inode *inode, struct file *filp) {
 
   if (down_interruptible(&pciDev->open_sem))
     return -ERESTARTSYS;
-    
+
   filp->private_data = pciDev; //for other methods
   //atomic_set(&pciDev->rd_condition, 0); // prepare to read *****************************
-  up(&pciDev->open_sem);    
+  up(&pciDev->open_sem);
 
   return 0;
 
@@ -119,7 +119,7 @@ int _pcie_open(struct inode *inode, struct file *filp) {
  */
 int _pcie_release(struct inode *inode, struct file *filp) {
   PCIE_DEV *pciDev;   /* device information */
-  
+
   /**    retrieve the device information  */
 
   pciDev = container_of(inode->i_cdev,  PCIE_DEV, cdev);
@@ -149,7 +149,7 @@ ssize_t _pcie_read(struct file *filp, char *buf, size_t count, loff_t *f_pos) {
 
   if(atomic_read(&pciDev->rd_condition) == 0)
     {
-      if(wait_event_interruptible_timeout(pciDev->rd_q, atomic_read(&pciDev->rd_condition) !=0, 
+      if(wait_event_interruptible_timeout(pciDev->rd_q, atomic_read(&pciDev->rd_condition) !=0,
 					  pciDev->wt_tmout)==0)
 	{
 	  //printk(KERN_ALERT "_pcie read: wait_q timeout\n");
@@ -173,7 +173,7 @@ ssize_t _pcie_read(struct file *filp, char *buf, size_t count, loff_t *f_pos) {
     pciDev->curr_buf = 0;
   else
     pciDev->curr_buf++;
- out: 
+ out:
   return retval;
 }
 
@@ -198,11 +198,11 @@ struct file_operations _fops = {
 /**
  * _irq_handler
  */
-static irqreturn_t _irq_handler(int irq, void* dev_id) { 
+static irqreturn_t _irq_handler(int irq, void* dev_id) {
   PCIE_DEV      *pciDev;
   unsigned long  flags;
   int tmp;
-  irqreturn_t    _ret = IRQ_HANDLED;    
+  irqreturn_t    _ret = IRQ_HANDLED;
 
   pciDev = (PCIE_DEV *) pci_get_drvdata(dev_id);
   spin_lock_irqsave(&pciDev->irq_lock, flags);
@@ -301,11 +301,11 @@ int setupDMA(PCIE_DEV *pcieDev) {
   int i = 0;
   /**
      setting DMA regions */
-  pcieDev->dmaIO.buf_size = DMA_MAX_BYTES;//PAGE_SIZE * (1 << GFPORDER);// 
+  pcieDev->dmaIO.buf_size = DMA_MAX_BYTES;//PAGE_SIZE * (1 << GFPORDER);//
   iowrite32(pcieDev->dmaIO.buf_size, (void*) &pcieDev->pHregs->dmaNbytes);  // write the buffer size to the FPGA
 
   /* set up a coherent mapping through PCI subsystem */
-  for( i=0; i<DMA_BUFFS; i++){  
+  for( i=0; i<DMA_BUFFS; i++){
 
     pcieDev->dmaIO.buf[i].addr_v = pci_alloc_consistent(pcieDev->pdev, pcieDev->dmaIO.buf_size,
 							&(pcieDev->dmaIO.buf[i].addr_hw));
@@ -353,7 +353,7 @@ int _probe(struct pci_dev *pdev, const struct pci_device_id *id) {
     printk(KERN_ERR "_pcie_probe pci_enable_device error(%d). EXIT\n", _ret);
     return _ret;
   }
- 
+
   /*enable DMA transfers */
   _ret = enableDMAonboard(pdev);
   if (_ret != 0) {
@@ -389,17 +389,17 @@ int _probe(struct pci_dev *pdev, const struct pci_device_id *id) {
 
   PDEBUG("_pcie_probe Bar 0 address 0 0x%08x\n",
 	 ioread32(pciDev->memIO[0].vaddr));
-	
+
   // ----- ----- ----- ----- ----- ----- DEVICE SPECIFIC CODE ----- ----- ----- ----- ----- -----
   /* Install board IRQ */
 
-  _ret=pci_enable_msi(pdev);  
+  _ret=pci_enable_msi(pdev);
 
   if (_ret) {
     printk(KERN_ERR "pci_enable_msi %d error[%d]\n", pdev->irq, _ret);
     return _ret;
   }
-  pciDev->irq = pdev->irq;    
+  pciDev->irq = pdev->irq;
 
   // _ret = request_irq(pdev->irq, _irq_handler, IRQF_SHARED, DRV_NAME, (void*) pdev);
   _ret = request_irq(pdev->irq, _irq_handler, 0, DRV_NAME, (void*) pdev);
@@ -409,7 +409,7 @@ int _probe(struct pci_dev *pdev, const struct pci_device_id *id) {
     return _ret;
   }
   PDEBUG("_pcie irq %d handler installed\n", pdev->irq);
-    
+
   spin_lock_init(&pciDev->irq_lock);
   init_waitqueue_head(&pciDev->rd_q);
   _minor = sReg.statFlds.slotID;
@@ -429,15 +429,16 @@ int _probe(struct pci_dev *pdev, const struct pci_device_id *id) {
   pciDev->dev= device_create(atca_ioc_int_class, NULL,
 			     pciDev->devno, NULL, NODENAMEFMT, _minor);
 
+  cReg.reg32 = 0;
   cReg.cmdFlds.ACQE=0;
   cReg.cmdFlds.STREAME=0;
-  cReg.cmdFlds.DAC_SHIFT=0xC; // 4 bit field 
+  cReg.cmdFlds.DAC_SHIFT=0xC; // 4 bit field
 
-  PCIE_WRITE32(cReg.reg32, (void*) &pciDev->pHregs->command);
-    
+  iowrite32(cReg.reg32, (void*) &pciDev->pHregs->command);
+
   cReg.reg32 = ioread32( (void*) &pciDev->pHregs->command);
   sReg.reg32 = ioread32( (void*) &pciDev->pHregs->status);
-  printk(KERN_NOTICE "%s installed, major:%d, stat Reg:0x%8X, com Reg:0x%8X\n", 
+  printk(KERN_NOTICE "%s installed, major:%d, stat Reg:0x%8X, com Reg:0x%8X\n",
 	 DRV_NAME, device_major, sReg.reg32, cReg.reg32);
 
   return 0;
@@ -477,7 +478,7 @@ void _remove(struct pci_dev *pdev) {
 			pciDev->dmaIO.buf[i].addr_hw);
   for( i=0; i<2; i++)
     iounmap(pciDev->memIO[i].vaddr);
-  
+
   /* disable PCI board */
   kfree(pciDev);
   pci_set_drvdata(pdev, NULL);
@@ -526,7 +527,7 @@ static int __init _pcie_init(void) {
   unregister_chrdev_region(MKDEV(device_major,0), MINOR_NUMBERS);
  fail:
   return _ret;
-  
+
 }
 
 /*

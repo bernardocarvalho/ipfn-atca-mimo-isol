@@ -109,7 +109,7 @@ int acq_init_device(int fd, int nchannels, int dma_size, int chop_period, int * 
   PDEBUG(" +1 ms Delta Counter: %d\n", tmp - tmp1);
   rc = ioctl(fd, PCIE_ATCA_IOCT_CHOP_ON); //Set the Chop on
   //rc = ioctl(fd, PCIE_ATCA_IOCT_CHOP_OFF); //Set the Chop off
-  rc = ioctl(fd, PCIE_ATCA_IOCT_CHOP_DEFAULT_0); // 
+  rc = ioctl(fd, PCIE_ATCA_IOCT_CHOP_DEFAULT_0); //
   rc = ioctl(fd, PCIE_ATCA_IOCT_CHOP_RECONSTRUCT_ON); //The signal is  to be reconstruted inside the FPGA before integration
   //rc = ioctl(fd, PCIE_ATCA_IOCT_CHOP_RECONSTRUCT_OFF); //The signal is not to be reconstruted inside the FPGA
   rc = ioctl(fd, PCIE_ATCA_IOCT_INTEGRAL_CALC_OFF); // Not used in this FW
@@ -118,7 +118,7 @@ int acq_init_device(int fd, int nchannels, int dma_size, int chop_period, int * 
   rc  =  ioctl(fd, PCIE_ATCA_IOCS_DMA_SIZE, &tmp);
   tmp = dma_size;//DMA_ACQ_SIZE;
   //  tmp = DMA_ACQ_SIZE; // 0x40000; // Half Buffer
-  rc  =  ioctl(fd, PCIE_ATCA_IOCS_DMA_THRES, &tmp);
+  //  rc  =  ioctl(fd, PCIE_ATCA_IOCS_DMA_THRES, &tmp);
 
   //Set the Chop's period, in this case is 2000 times the period of the acquisition period.
   //(2000) The Chop's frequency will be 1kHz
@@ -129,11 +129,11 @@ int acq_init_device(int fd, int nchannels, int dma_size, int chop_period, int * 
   rc = ioctl(fd, PCIE_ATCA_IOCS_CHOP_CHANGE_COUNT, &tmp);
 
   reset_offsets(fd);
-  /* Set ADC offsets*/  
+  /* Set ADC offsets*/
   for (i=0; i < nchannels; i++)
     write_adc_offset(fd, i, adc_offset_vec[i]);
 
-  /* Set INT offsets*/  
+  /* Set INT offsets*/
   for (i=0; i < nchannels; i++)
     write_int_offset(fd, i, int_offset_vec[i]);
 
