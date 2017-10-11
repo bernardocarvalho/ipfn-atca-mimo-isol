@@ -5,21 +5,37 @@
 // 
 // Create Date:    13:47:38 26/05/2014 
 // 
-// Create Date:    17:08:20 01/14/2009 
 // Design Name: 
 // Module Name:    ADC_DAQ_pkg 
-// Project Name: 	 ATCA-IOC DAQ & CONTROL FIRMWARE
+// Project Name:   W7X_INTLCK_FP
 // Target Devices: 
 // Tool versions: 
 // Description:  General definitions for other modules
-//			
-// Dependencies: 
 //
-// Revision: 
-// Revision 0.01 - File Created
-// Additional Comments: 
+// Copyright 2015 - 2017 IPFN-Instituto Superior Tecnico, Portugal
+// Creation Date  2015-06-10
+//
+// Licensed under the EUPL, Version 1.2 or - as soon they
+// will be approved by the European Commission - subsequent
+// versions of the EUPL (the "Licence");
+// You may not use this work except in compliance with the
+// Licence.
+// You may obtain a copy of the Licence at:
+//
+// https://joinup.ec.europa.eu/software/page/eupl
+//
+// Unless required by applicable law or agreed to in
+// writing, software distributed under the Licence is
+// distributed on an "AS IS" basis,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied.
+// See the Licence for the specific language governing
+// permissions and limitations under the Licence.
+//
 //
 //////////////////////////////////////////////////////////////////////////////////
+parameter FW_VERSION = 8'hAE;
+
 parameter MEM32_bar =  2'b01; // BAR 0
 parameter BAR0 =  MEM32_bar;
 parameter BAR1 =  2'b00;
@@ -34,7 +50,6 @@ parameter N_DAC_CHANNELS  = 8;
 parameter PCIE_DATA_WIDTH = 32;
 parameter ADC_DATA_WIDTH = 18;
 parameter DAC_DATA_WIDTH = 16;
-//parameter DSP_DATA_WIDTH = 32;
 
 //parameter STATUS_REVID_a = {BAR1,1'b0,8'h00};
 //parameter COMMAND_a = {BAR1,1'b0,8'h01};
@@ -66,8 +81,7 @@ parameter DMA_BUFF_13_a = 8'd21;
 parameter DMA_BUFF_14_a = 8'd22;
 parameter DMA_BUFF_15_a = 8'd23;
 parameter N_BYTES_a     = 8'd24;
-parameter DMA_THRES_BYTES_a = 8'd25; // "Almost empty Flag" thres. Register
-
+//parameter DMA_THRES_BYTES_a = 8'd25; // "Almost empty Flag" thres. Register
 
 //Read write register addresses for DACs
 parameter DAC_1_a = 8'd30;
@@ -81,8 +95,10 @@ parameter DAC_8_a = 8'd37;
 
 parameter CHOP_MAX_COUNT_a    = 8'd40;
 parameter CHOP_CHANGE_COUNT_a = 8'd41;
-//parameter CHOP_FREQ_a = 8'd43;
-parameter INTEGR_DECIM_a= 8'd42;
+
+parameter HOLD_SAMPLES = 3; // Ignore 3 samples in Integral calculation for spike removal
+
+//parameter INTEGR_DECIM_a= 8'd42;
 
 parameter REG_OFFSET_a  = 8'd50;
 parameter REG_DATA_a    = 8'd51;
@@ -100,23 +116,26 @@ parameter DMA_TLP_SIZE = 6'd32; // num of DW per TLP (128 B)
 // Command registers bit fields
 // 5-bit selector
 //parameter RSTDCM           = 5'd0; // Reset DCMs
-parameter CHOP_ON          = 5'd10; // State of Chop, if equals 1 chop is ON if 0 it is OFF
-parameter CHOP_DEFAULT     = 5'd11; // Value of Chop case CHOP_STATE is 0
-parameter CHOP_RECONSTRUCT = 5'd12; // State of Chop Recontruction, if equals 1 chop is ON if 0 it is OFF
+parameter ENDIAN_DMA_BIT	= 5'd8; //Endianness of DMA data words	(0:little , 1: Big Endian)
+parameter CHOP_ON_BIT          = 5'd10; // State of Chop, if equals 1 chop is ON if 0 it is OFF
+parameter CHOP_DEFAULT_BIT     = 5'd11; // Value of Chop case CHOP_STATE is 0
+parameter CHOP_RECONSTRUCT_BIT = 5'd12; // State of Chop Recontruction, if equals 1 chop is ON if 0 it is OFF
 //parameter OFFSET_CALC = 5'd13; // 
-parameter INT_CALC			= 5'd14; // Output Integral Values
-parameter DAC_SHFT_BITS		= 5'd15; // DAC MUX command (4 bits)
+//parameter INT_CALC			= 5'd14; // Output Integral Values
+//parameter DAC_SHFT_BITS		= 5'd15; // DAC MUX command (4 bits)
 
-parameter STREAME = 5'd19;  // Streaming enable (Hugo)
+parameter STREAME_BIT = 5'd19 ; // Streaming enable 
 //parameter ACQS = 5'd20; // Aquisitio Source: 0- shared ATCA clocks, 1-internal clocks
 //parameter ACQT = 5'd21; 
 //parameter ACQK = 5'd22; 
-parameter ACQE = 5'd23; 
-parameter STRG = 5'd24; // soft Trigger
+
+parameter ACQE_BIT = 5'd23; 
+parameter STRG_BIT = 5'd24; // soft Trigger
+
 //parameter TRGS = 5'd25; // Trigger Source: 0- shared on ATCA, 1-internal (soft/hard)
-parameter DMAE = 5'd27;
+//parameter DMAE = 5'd27;
 //parameter ACQiE = 5'd31;
-parameter DMAiE = 5'd30;
+//parameter DMAiE = 5'd30;
 
 
 //parameter SYNCTOAQDLY= 7'd5; // delay in ddr_clk ticks between ADC sampling and write ops to account for FIRs and logic

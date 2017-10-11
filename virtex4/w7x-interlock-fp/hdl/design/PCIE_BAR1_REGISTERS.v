@@ -34,7 +34,7 @@ module PCIE_BAR1_REGISTERS (
 	output [31:2] dma_host_addr, // HW Address to Host Dma buffer TODO bits 1:0 not used?
 	output [31:0] command,
 	output [31:7] dma_size, 		// // number of bytes reqeusted in each DMA, bits 6-0 not used?
-	output [15:0] dma_flag_words,	// number of 32 bit words in fifo to raise "DMA Ready" Flag
+	//output [15:0] dma_flag_words,	// number of 32 bit words in fifo to raise "DMA Ready" Flag
 	input  [3:0]  dma_curr_buf,
 
 	input  [31:0] time_counter,
@@ -44,7 +44,7 @@ module PCIE_BAR1_REGISTERS (
 	output [31:0] REG_DATA,
 	output reg_wrt_en,	
 
-	output [15:0] INTEGR_DECIM,
+	//output [15:0] INTEGR_DECIM,
 
    output [15:0] DAC_1_data, 
    output [15:0] DAC_2_data, 
@@ -97,21 +97,21 @@ reg [31:2] DMA_BUFF_14_r = 0;
 reg [31:2] DMA_BUFF_15_r = 0;
 
 reg [31:7] N_BYTES_r        = 25'd0;
-reg [15:0] dma_word_thres_r = 16'b1000_0000_0000_0000; // Max 64k 32 words  prog_empty_thresh = d32768 
+//reg [15:0] dma_word_thres_r = 16'b1000_0000_0000_0000; // Max 64k 32 words  prog_empty_thresh = d32768 
 
 assign dma_size = N_BYTES_r;
 
-assign dma_flag_words = dma_word_thres_r;
+//assign dma_flag_words = dma_word_thres_r;
 
 reg [15:0] REG_OFFSET_r = 32'd0;
 reg [31:0] REG_DATA_r = 32'd0;
 reg        reg_wrt_en_r = 1'b0;
-reg [15:0] INTEGR_DECIM_r = 16'd200;
+//reg [15:0] INTEGR_DECIM_r = 16'd200;
 
 assign REG_OFFSET   = REG_OFFSET_r;
 assign REG_DATA     = REG_DATA_r;
 assign reg_wrt_en   = reg_wrt_en_r;
-assign INTEGR_DECIM   = INTEGR_DECIM_r;
+//assign INTEGR_DECIM   = INTEGR_DECIM_r;
 
 reg [15:0] DAC_1_data_r = 16'h8000;
 reg [15:0] DAC_2_data_r = 16'h8000;
@@ -161,7 +161,7 @@ always @(posedge trn_clk or negedge pio_reset_n)
 				REG_OFFSET_r <= 0;
 				REG_DATA_r <= 0;
 				reg_wrt_en_r <= 0;
-				INTEGR_DECIM_r <= 16'd200; // 10 kSPS decimation
+				//INTEGR_DECIM_r <= 16'd200; // 10 kSPS decimation
 			end 
 		else if (wr_en == 1'b1 ) 
 			begin
@@ -187,14 +187,14 @@ always @(posedge trn_clk or negedge pio_reset_n)
 						DMA_BUFF_14_a   	 : DMA_BUFF_14_r  <= wr_data_e[31:2];
 						DMA_BUFF_15_a   	 : DMA_BUFF_15_r  <= wr_data_e[31:2];
 						N_BYTES_a   	 	 : N_BYTES_r  	   <= wr_data_e[31:7];
-						DMA_THRES_BYTES_a 	 : dma_word_thres_r   <= wr_data_e[18:3]; // Nbytes-> N words
+						//DMA_THRES_BYTES_a 	 : dma_word_thres_r   <= wr_data_e[18:3]; // Nbytes-> N words
 						
 						REG_OFFSET_a	    : REG_OFFSET_r <= wr_data_e[15:0];
 						REG_DATA_a	       : begin
 														REG_DATA_r  <= wr_data_e; 
 														reg_wrt_en_r <= 1'b1;   // set write reg flag
 													end
-						INTEGR_DECIM_a	    : INTEGR_DECIM_r <= wr_data_e[15:0];
+						//INTEGR_DECIM_a	    : INTEGR_DECIM_r <= wr_data_e[15:0];
 											
 						DAC_1_a	          : DAC_1_data_r <= wr_data_e[15:0];
 						DAC_2_a	          : DAC_2_data_r <= wr_data_e[15:0];
@@ -223,7 +223,7 @@ always @(posedge trn_clk or negedge pio_reset_n)
 // PIO  READ Process (combinatorial)
    always @(rd_addr, status, COMMAND_r, ACQFREQ_r,  dma_curr_buf, 
 	chop_max_count_r, chop_change_count_r,
-				DMA_BUFF_0_r, DMA_BUFF_1_r, time_counter, N_BYTES_r, dma_word_thres_r, REG_OFFSET_r, REG_DATA_r, INTEGR_DECIM_r)
+				DMA_BUFF_0_r, DMA_BUFF_1_r, time_counter, N_BYTES_r,  REG_OFFSET_r, REG_DATA_r)
 			if (rd_addr[10:9] == BAR0 )  begin
 					rd_data_r  <=  32'h55000000;  
 				end 
@@ -236,11 +236,11 @@ always @(posedge trn_clk or negedge pio_reset_n)
 					DMA_CURR_BUFF_a: rd_data_r  <=  {28'h0, dma_curr_buf}; 
 					HW_COUNTER_a	: rd_data_r     		<=  time_counter;
 					N_BYTES_a  	 	     : rd_data_r     <=  N_BYTES_r;
-					DMA_THRES_BYTES_a    : rd_data_r     <=  {13'b0, dma_word_thres_r, 3'b0};
+					//DMA_THRES_BYTES_a    : rd_data_r     <=  {13'b0, dma_word_thres_r, 3'b0};
 
 					REG_OFFSET_a 	: rd_data_r     		<=  {16'h0,REG_OFFSET_r};
 					REG_DATA_a   	: rd_data_r     		<=  REG_DATA_r;
-					INTEGR_DECIM_a 	: rd_data_r     		<=  {16'h0,INTEGR_DECIM_r};
+					//INTEGR_DECIM_a 	: rd_data_r     		<=  {16'h0,INTEGR_DECIM_r};
 					
 					CHOP_MAX_COUNT_a 		: rd_data_r  <=  chop_max_count_r;
 					CHOP_CHANGE_COUNT_a  : rd_data_r  <=  chop_change_count_r;

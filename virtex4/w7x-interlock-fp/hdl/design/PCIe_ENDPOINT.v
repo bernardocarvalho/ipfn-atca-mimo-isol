@@ -7,19 +7,34 @@
 // Design Name:  
 // Module Name: PCIe_ENDPOINT 
 // Target Devices: XC4VFX
-// Tool versions: ISE10.1
+// Tool versions: ISE 14.7
 // Description: INTERFACE PCIe logic Core - RX module - TX_DMA module and Turnoff module
 //
-//-- SVN keywords
-// $Date: 2016-02-03 18:53:24 +0000 (Wed, 03 Feb 2016) $
-// $Revision: 8264 $
-// $URL: http://metis.ipfn.ist.utl.pt:8888/svn/cdaq/ATCA/ATCA-IO-CONTROL/IPP/W7X_INTLCK_FP/hdl/design/PCIe_ENDPOINT.v $
 
+// Copyright 2008 - 2017 IPFN-Instituto Superior Tecnico, Portugal
+// Creation Date  21:52:50 07/02/2008
+//
+// Licensed under the EUPL, Version 1.2 or - as soon they
+// will be approved by the European Commission - subsequent
+// versions of the EUPL (the "Licence");
+//
+// You may not use this work except in compliance with the
+// Licence.
+// You may obtain a copy of the Licence at:
+//
+// https://joinup.ec.europa.eu/software/page/eupl
+//
+// Unless required by applicable law or agreed to in
+// writing, software distributed under the Licence is
+// distributed on an "AS IS" basis,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied.
+// See the Licence for the specific language governing
+// permissions and limitations under the Licence.
+//
 // Dependencies: 
 //
-// Revision: 
-// Revision 0.01 - File Created
-// Additional Comments: 
+//
 //
 //////////////////////////////////////////////////////////////////////////////////
 module PCIe_ENDPOINT(
