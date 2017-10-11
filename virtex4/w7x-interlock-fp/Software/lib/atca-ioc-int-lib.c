@@ -112,7 +112,7 @@ int acq_init_device(int fd, int nchannels, int dma_size, int chop_period, int * 
   rc = ioctl(fd, PCIE_ATCA_IOCT_CHOP_DEFAULT_0); //
   rc = ioctl(fd, PCIE_ATCA_IOCT_CHOP_RECONSTRUCT_ON); //The signal is  to be reconstruted inside the FPGA before integration
   //rc = ioctl(fd, PCIE_ATCA_IOCT_CHOP_RECONSTRUCT_OFF); //The signal is not to be reconstruted inside the FPGA
-  rc = ioctl(fd, PCIE_ATCA_IOCT_INTEGRAL_CALC_OFF); // Not used in this FW
+//  rc = ioctl(fd, PCIE_ATCA_IOCT_INTEGRAL_CALC_OFF); // Not used in this FW
 
   tmp = dma_size;
   rc  =  ioctl(fd, PCIE_ATCA_IOCS_DMA_SIZE, &tmp);

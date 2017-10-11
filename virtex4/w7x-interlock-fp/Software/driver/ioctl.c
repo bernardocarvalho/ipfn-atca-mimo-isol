@@ -423,8 +423,8 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
 
     break;
     ///////////////////////////////////////////////////
-    ///////////////////////////////////////////////////
-  case PCIE_ATCA_IOCT_OFFSET_CALC_ON:
+  /**
+    case PCIE_ATCA_IOCT_OFFSET_CALC_ON:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
 
     cReg.reg32=PCIE_READ32((void*) &pciDev->pHregs->command);
@@ -445,7 +445,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
 
     break;
-
+*/
   case  PCIE_ATCA_IOCS_DAC_1_DATA:
     if(copy_from_user(&tmp, (void __user *)arg, sizeof(tmp)))
       return -EFAULT;
@@ -611,8 +611,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
 
     /*   break; */
 
-    //////////////////////////////////////////////////////
-
+/*
   case PCIE_ATCA_IOCT_INTEGRAL_CALC_ON:
     spin_lock_irqsave(&pciDev->irq_lock, flags);
 
@@ -634,7 +633,7 @@ long _unlocked_ioctl(struct file *filp,  unsigned int cmd, unsigned long arg){
     spin_unlock_irqrestore(&pciDev->irq_lock, flags);
 
     break;
-
+*/
   default:  /* redundant, as cmd was checked against MAXNR */
     return -ENOTTY;
   }

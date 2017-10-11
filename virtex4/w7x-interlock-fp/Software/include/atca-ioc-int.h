@@ -79,7 +79,7 @@ typedef struct _COMMAND_REG {
     u32 reg32;
     /*  0, ..... 15
 	    19 , ...31   */
-    struct  {u32 rsv0:8, BIG_ENDN:1, rsv00:1, CHOP_ON:1, CHOP_DEFAULT:1, CHOP_RECONSTRUCT:1, OFFSET_CALC:1, INTEGRAL_CALC:1, DAC_SHIFT:4,
+    struct  {u32 rsv0:8, BIG_ENDN:1, rsv00:1, CHOP_ON:1, CHOP_DEFAULT:1, CHOP_RECONSTRUCT:1, rsv01:6, //OFFSET_CALC:1, INTEGRAL_CALC:1, DAC_SHIFT:4,
 	STREAME:1, rsv1:3, ACQE:1, STRG:1, TRGS:1, rsv2:1, DMAE:1, rsv4:1, ERRiE:1, DMAiE:1, ACQiE:1;
     } cmdFlds;
   };

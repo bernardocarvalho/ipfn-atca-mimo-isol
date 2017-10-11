@@ -432,7 +432,7 @@ int _probe(struct pci_dev *pdev, const struct pci_device_id *id) {
   cReg.reg32 = 0;
   cReg.cmdFlds.ACQE=0;
   cReg.cmdFlds.STREAME=0;
-  cReg.cmdFlds.DAC_SHIFT=0xC; // 4 bit field
+//  cReg.cmdFlds.DAC_SHIFT=0xC; // 4 bit field
 
   iowrite32(cReg.reg32, (void*) &pciDev->pHregs->command);
 
