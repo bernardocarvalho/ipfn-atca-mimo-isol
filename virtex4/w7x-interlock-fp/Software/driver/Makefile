@@ -62,11 +62,24 @@ endif
 EXTRA_CFLAGS += -I$(LDDINC)
 EXTRA_CFLAGS += $(DEBFLAGS)
 
+KERNEL_VERSION := $(shell uname -r)
+PACKAGE_NAME := atca-ioc-w7x-intrlck-driver-${KERNEL_VERSION}
+PACKAGE_VERSION=0.0.0
+
+DEBPKG_NAME := $(PACKAGE_NAME)-$(PACKAGE_VERSION)
+DEBPKG_MODULE_DIR := $(DEBPKG_NAME)/lib/modules/$(KVER)/kernel/drivers/atca
+DEBPKG_UDEV_RULES_DIR := $(DEBPKG_NAME)/etc/udev/rules.d
+DEBPKG_DEBIAN_DIR := $(DEBPKG_NAME)/DEBIAN
+DEBPKG_FILES := $(DEBPKG_MODULE_DIR)/$(TARGET) $(DEBPKG_UDEV_RULES_DIR)/atca_ioc.rules $(DEBPKG_DEBIAN_DIR)/control $(DEBPKG_DEBIAN_DIR)/postinst $(DEBPKG_DEBIAN_DIR)/prerm $(DEBPKG_DEBIAN_DIR)/postrm
+DEBPKG_TARGET := $(DEBPKG_NAME).deb
+
+
 #all:
 default:
 	$(MAKE) -C $(KDIR) M=$(PWD) LDDINC=$(PWD)/../include modules
 clean:
 	rm -f *.o *.ko .*.cmd .*.flags *.mod.c
+	rm -rf $(PACKAGE_NAME)*
 
 install: default # 
 #         # remove all old versions of the driver
@@ -80,3 +93,41 @@ uninstall: clean
 	/sbin/depmod -a || true
 	find /etc/udev/rules.d -name atca_ioc -exec rm -f {} \; || true
 
+#
+# Rules to create Debian package
+#
+
+package: $(DEBPKG_TARGET)
+
+$(DEBPKG_TARGET): $(DEBPKG_FILES)
+	@fakeroot dpkg --build $(DEBPKG_NAME)
+
+$(DEBPKG_MODULE_DIR)/$(TARGET): $(TARGET) $(DEBPKG_MODULE_DIR)
+	@install -D -m 644 $(TARGET) $(DEBPKG_MODULE_DIR)/$(TARGET)	
+
+$(DEBPKG_UDEV_RULES_DIR)/atca_ioc.rules: atca_ioc.rules $(DEBPKG_UDEV_RULES_DIR)
+	@install -m 0644 atca_ioc.rules $(DEBPKG_UDEV_RULES_DIR)
+
+$(DEBPKG_DEBIAN_DIR)/control: $(DEBPKG_DEBIAN_DIR)
+	@echo "Package: ${PACKAGE_NAME}\nVersion: ${PACKAGE_VERSION}\nSection: kernel\nPriority: optional\nArchitecture: amd64\nMaintainer: Max-Planck-Institut für Plasmaphyisk, CoDaC\nHomepage: http://www.ipp.mpg.de\nDescription: Kernel module for ATCA MIMO32 devices with interlock functionality (provided by IST)\nDepends: linux-image-$(KERNEL_VERSION)\n" > "${DEBPKG_DEBIAN_DIR}/control"
+
+$(DEBPKG_DEBIAN_DIR)/postinst: $(DEBPKG_DEBIAN_DIR)
+	@echo "#!/bin/sh\n\n/sbin/depmod $(KERNEL_VERSION) || true\n" > "${DEBPKG_DEBIAN_DIR}/postinst"
+	@chmod 0755 "${DEBPKG_DEBIAN_DIR}/postinst"
+
+$(DEBPKG_DEBIAN_DIR)/prerm: $(DEBPKG_DEBIAN_DIR)
+	@echo "#!/bin/sh\n\nif lsmod | grep atca_ioc_w7x_intrlck > /dev/null 2>&1 ; then\n  /sbin/rmmod atca_ioc_w7x_intrlck || true\nfi\n" > "${DEBPKG_DEBIAN_DIR}/prerm"
+	@chmod 0755 "${DEBPKG_DEBIAN_DIR}/prerm"
+
+$(DEBPKG_DEBIAN_DIR)/postrm: $(DEBPKG_DEBIAN_DIR)
+	@echo "#!/bin/sh\n\n/sbin/depmod $(KERNEL_VERSION) || true\n" > "${DEBPKG_DEBIAN_DIR}/postrm"
+	@chmod 0755 "${DEBPKG_DEBIAN_DIR}/postrm"
+
+$(DEBPKG_MODULE_DIR):
+	@mkdir -p $(DEBPKG_MODULE_DIR)
+
+$(DEBPKG_UDEV_RULES_DIR):
+	@mkdir -p $(DEBPKG_UDEV_RULES_DIR)
+
+$(DEBPKG_DEBIAN_DIR):
+	@mkdir -p $(DEBPKG_DEBIAN_DIR)
