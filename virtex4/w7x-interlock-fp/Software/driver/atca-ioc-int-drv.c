@@ -230,7 +230,7 @@ static irqreturn_t _irq_handler(int irq, void* dev_id) {
 int enableDMAonboard(struct pci_dev *pdev) {
   int _ret =0;
 
-  _ret=pci_dma_supported(pdev,  DMA_BIT_MASK(32));
+  _ret=dma_supported(pdev == NULL ? NULL : &pdev->dev, DMA_BIT_MASK(32));
   if (! _ret ){
     printk(KERN_ERR "_pcie_probe DMA not supported. EXIT\n");
     return _ret;
