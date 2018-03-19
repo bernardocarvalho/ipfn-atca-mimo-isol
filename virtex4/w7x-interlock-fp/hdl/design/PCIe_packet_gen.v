@@ -69,7 +69,6 @@ module PCIe_packet_gen(
 	 input int_data_hold,
 	 // 
 	 input [17:0]  data_in_ch1, data_in_ch2,  data_in_ch3, data_in_ch4, data_in_ch5, data_in_ch6, 
-	 //data_in_ch7, data_in_ch8,
   
 	 input [15:0] reg_offset,
 	 input [31:0] reg_data,
@@ -102,18 +101,19 @@ function signed [ADC_DATA_WIDTH-1:0] adc_chop_rec_f;
 			adc_chop_rec_f = $signed(adc_data) - $signed(off_data); 
   endfunction
 
+// Sign extension 18->32 bits   	
 function  [FIFO_WIDTH-1:0] fifo_adcword32_f;
     input [ADC_DATA_WIDTH-1:0] adc_data;
 		fifo_adcword32_f =  {{14{adc_data[ADC_DATA_WIDTH-1]}}, adc_data}; 
   endfunction
 
+// Detection of Integral Overflow ( if 4 MSB bits of the integer integral calculation are reached)
 function  integral_overflow_f;
     input [INTEGRAL_WIDTH-1:0] int_val;	 
 		integral_overflow_f = int_val[INTEGRAL_WIDTH-1] ^ (int_val[INTEGRAL_WIDTH-2] | int_val[INTEGRAL_WIDTH-3]| int_val[INTEGRAL_WIDTH-3] );
 endfunction
 
-//	wire int_ovrflw = adc_int[INTEGRAL_WIDTH-1] ^ (adc_int[INTEGRAL_WIDTH-2] | adc_int[INTEGRAL_WIDTH-3]  );
-
+// Integer (Full 48.16 resolution calculatio and WO compensation
 function signed [INTEGRAL_WIDTH-1:0] integral_calc_f;  // integer 32 + 16 fractional bits
     input signed [INTEGRAL_WIDTH-1:0] int_val;
     input signed [ADC_DATA_WIDTH-1:0] adc_rec;
@@ -126,6 +126,7 @@ function signed [INTEGRAL_WIDTH-1:0] integral_calc_f;  // integer 32 + 16 fracti
 	 end
   endfunction  
 
+// Format change for DAC chips
 function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
    input [DAC_DATA_WIDTH-1:0] dac_data, off_data;
    dac_offset_binary_f = $signed(dac_data) + $signed(off_data); 
@@ -139,7 +140,7 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 
 	integer r;
 		
-	/* OFFSET regs PCIe PIO WRITE Process */
+	/* OFFSET memory regs PCIe PIO WRITE Process */
 	wire [4:0] off_idx = reg_offset[4:0];
 	always @(posedge trn_clk or negedge pio_reset_n)
 		if (!pio_reset_n) 
@@ -161,7 +162,7 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 					coeff_r[off_idx] <= reg_data;
 
 			
-	/*	*/	
+	/*	2Mhz counter after trigger*/	
 	reg [31:0] clk2M_cnt = 1;
 	always @ (negedge wordSync_n )
 		if (!trigger_n)
@@ -169,7 +170,7 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 		else
 				clk2M_cnt <= clk2M_cnt + 1;										
 		
-	localparam NDLY = 2; // 2 sample delay for acquisition of ADC samples
+	localparam NDLY = 2; // 2 sample delay after wordSync_n signal for acquisition of ADC sampled data
 	reg [NDLY:1] wordSync_dly;
 	always @ (posedge ff_clk)
 			wordSync_dly <= {wordSync_dly[(NDLY-1):1] , wordSync_n};
@@ -181,17 +182,14 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 	reg  signed  [ADC_DATA_WIDTH-1:0] last_adc_rec[0:(N_INT_CHANNELS-1)];
 	
 	reg [N_INT_CHANNELS-1:0] int_ovrflw; 
-//	wire int_ovrflw = adc_int[INTEGRAL_WIDTH-1] ^ (adc_int[INTEGRAL_WIDTH-2] | adc_int[INTEGRAL_WIDTH-3]  );
 
 	wire new_sample = wordSync_dly[NDLY] & (~wordSync_dly[NDLY-1]); // 20 ns delay on falling edge 2mhz wordSync_n
 	reg fifo_wr_en_r; //, write_int_en_r;	
-//	reg dsp_en_r; 	
 	reg [7:0]  ff_clk_cnt = 0;
 
 	wire   [FLOAT_WIDTH-1:0] resultDsp; 
 
 /*Interlock signal is sign bit of result value*/
-//	wire  interlock_i =resultDsp[FLOAT_SIGN_BIT];
 	reg  interlock_r; 
 	assign interlock_out =interlock_r;
 	
@@ -232,9 +230,7 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 							int_ovrflw[r] <= integral_overflow_f(adc_int[r]);
 						end
 				else if (ff_clk_cnt == 8'h0A)
-						interlock_r <= resultDsp[FLOAT_SIGN_BIT];				
-//				else if (ff_clk_cnt == 8'd7) 
-//					dsp_en_r <= 1'b0;
+						interlock_r <= resultDsp[FLOAT_SIGN_BIT];	 // Interlock is ON if final DSP result is NEGATIVE			
 				else if (ff_clk_cnt == 8'h0F) 
 						fifo_wr_en_r <= 1'b0;
 			end
@@ -278,6 +274,7 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 
    wire [5:0] FpAdd32_ovrflw;
 	
+	/*Integral Mux. 128 byte packet*/ 
 	wire [3:0] mux_adc = ff_clk_cnt[3:0];
 	reg [FIFO_WIDTH-1:0] data32_fifo_in = 0;			
 	always @ (mux_adc, clk2M_cnt, adc_chop_dly, ff_clk_cnt, dspMult_term[0], resultDsp, data_fp32[0], interlock_r, int_ovrflw, FpAdd32_ovrflw)
@@ -301,17 +298,11 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 				4'd14: data32_fifo_in = {interlock_r, int_ovrflw, FpAdd32_ovrflw, 18'd0,adc_chop_dly};//ff_clk_cnt here should be always 0x0E
 				4'd15: data32_fifo_in = clk2M_cnt[FIFO_WIDTH-1:0];
 			endcase
-//http://stackoverflow.com/questions/18067571/indexing-vectors-and-arrays-with
-/*Integral Mux. 128 byte packet*/ 
-//	reg [31:0] integral_32_fifo_in;			
-//	wire [3:0] mux_int = ff_clk_cnt[3:0];
-////	assign integral_32_fifo_in=adc_int[mux_idx];
-//
  
+	/* LITLE or BIG ENDIAN change option*/
 	wire [FIFO_WIDTH-1:0] fifo_endian_in ;
 	assign fifo_endian_in = (command[ENDIAN_DMA_BIT])?  data32_fifo_in : // Big Endian data
 		{data32_fifo_in[7:0], data32_fifo_in[15:8], data32_fifo_in[23:16], data32_fifo_in[31:24]};
-//	wire write_en_i =  write_adc_en_r;
 
 /*
 FIFO 
@@ -319,7 +310,6 @@ FIFO
 Depth :65536 words = 256 kBytes = 4096 samples
 	  513			2kB
 */
-
 	wire fifo_empty_i;
 //	wire fifo_prgfull_i;
 	RT_FIFO rt_fifo(
@@ -420,22 +410,3 @@ Depth :65536 words = 256 kBytes = 4096 samples
    
 						
 endmodule
-
-/** Not used  
-function [FIFO_WIDTH-1:0] fifo_word32_f;
-    input [ADC_DATA_WIDTH-1:0] adc_msb, adc_lsb;
-		fifo_word32_f =  {adc_msb[ADC_DATA_WIDTH-1:2], adc_lsb[ADC_DATA_WIDTH-1:2]}; //16 msb only
-  endfunction
-  
-function  [FIFO_WIDTH-1:0] fifo_adcword32_chop_f;
-    input [ADC_DATA_WIDTH-1:0] adc_data;
-    input chop_bit;
-		fifo_adcword32_chop_f =  {{13{adc_data[ADC_DATA_WIDTH-1]}}, adc_data, chop_bit}; // sign extend + chop bit
-  endfunction
-
-function [FIFO_WIDTH-1:0] msb_32;
-    input [INTEGRAL_WIDTH:0] datain;
-		msb_32 =  datain[FRACTIONAL_WIDTH +: FIFO_WIDTH];
-  endfunction
-	 
- */
