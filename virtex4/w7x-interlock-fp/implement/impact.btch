@@ -1,4 +1,8 @@
-#e:\Xilinx\14.7\ISE_DS\ISE\bin\nt\impact -batch impact.btch
+# change the  line with the path to Xilinx bin path 
+# change the "addDesign -version 0 -name " , with the HW version letters
+# open a command terminal,  run :
+#F:\Xilinx-ISE\14.7\ISE_DS\ISE\bin\nt\impact -batch impact.btch
+#
 setMode -acecf
 addCollection -name "W7X"
 addDesign -version 0 -name id24_vAE
