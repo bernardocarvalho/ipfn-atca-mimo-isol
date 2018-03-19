@@ -3,15 +3,15 @@
 // Engineer: AJNB  & BBC
 //
 // Project Name:   W7X_INTLCK_FP
-// Design Name:    ATCA-MIMO-ISOL INTERLOCK Streaming and Processing FW. 16 Channels.  
+// Design Name:    ATCA-MIMO-ISOL INTERLOCK Streaming and Processing FW. 6 Channels.  
 // Module Name:    W7X_INTLCK_FP
 // Target Devices: XC4VFX60-11FF1152 
 //
 //Description: 
-//  		This firmware  makes the aquisition on N_ADC_CHANNELS channels at 18 bit resolution, and also the numerical integration at 6 channels using 18bit ADC data.
-//			It uses "chopped" ADC modules and is able to perfor ADC EO (Electonic Offset)correction and signal re-invertion.
+//  		This firmware  makes the acquisition on N_ADC_CHANNELS channels at 18 bit resolution, and also the numerical integration at 6 channels using 18bit ADC data.
+//			It uses "chopped" ADC modules and is able to perfor ADC EO (Electronic Offset)correction and signal re-inversion.
 // 		After the signal receiving, signals are integrated and corrected for WO offset ("Wiring Offset)
-//       A convertion to single floating point (FP) format is perfoRmed on 6 channels and a calculation of the formula in performed 
+//       A conversion to single floating point (FP) format is perfoRmed on 6 channels and a calculation of the formula in performed 
 // 		Fk = Sum_(i=1..6) ( A_i *B_i) + C , using 6 +1 FP coefficients stored in user written registers
 // 		
 // 		The timing circuit is compatible with IPP TTE timing system (see "ASCII figure" on comments below)
@@ -20,7 +20,7 @@
 // 		
 // Tested with Linux  3.10.x kernel
 //
-// Copyright 2015 - 2018 IPFN-Instituto Superior Tecnico, Portugal
+// Copyright 2015 - 2018 IPFN - Instituto Superior Tecnico, Portugal
 // Creation Date  2015-06-10
 //
 // Licensed under the EUPL, Version 1.2 or - as soon they
@@ -634,7 +634,7 @@ wire  AD9511_output1; // Only output 1 is needed
 		 .REG_OFFSET(reg_off_i),
 		 .REG_DATA(reg_data_i),
 		 .reg_wrt_en(reg_wrt_en_i),
-		 //.INTEGR_DECIM(int_decimate_i),
+		 
 		 //.DAC_1_data(DAC_data_i[1]), // driven by DSP calculation
 		 //.DAC_2_data(DAC_data_i[2]), // driven by time counter (voltage ramp)
 		 .DAC_3_data(DAC_data_i[3]),	 // driven by PCIe register

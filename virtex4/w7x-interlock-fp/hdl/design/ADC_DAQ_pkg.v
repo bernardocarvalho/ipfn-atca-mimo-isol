@@ -12,7 +12,7 @@
 // Tool versions: 
 // Description:  General definitions for other modules
 //
-// Copyright 2015 - 2017 IPFN-Instituto Superior Tecnico, Portugal
+// Copyright 2015 - 2018 IPFN-Instituto Superior Tecnico, Portugal
 // Creation Date  2015-06-10
 //
 // Licensed under the EUPL, Version 1.2 or - as soon they
