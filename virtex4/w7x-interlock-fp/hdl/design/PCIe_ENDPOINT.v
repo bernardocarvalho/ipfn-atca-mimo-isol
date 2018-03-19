@@ -33,6 +33,7 @@
 // permissions and limitations under the Licence.
 //
 // Dependencies: 
+//    PCIe 3.7 Xilinx IP core (needs special license to Generate)
 //
 //
 //
@@ -71,30 +72,6 @@ module PCIe_ENDPOINT(
 	output 		  pio_reset_n
 
 );
-//DEBUG 
-/*output  		   ACQC, 
-output 		   DMAC,  
-output			start_interrupt,
-output 			half_mem,
-output         empty_dma_fifo, 
-output         rd_en, 
-output         DMAn, 
-output         DMAE_r3, 
-output         trig_cbuffer,
-output         cfg_interrupt_n_out,
-output 			cfg_interrupt_rdy_n_out,
-
-
-output 			SERR_Enable,
-output 			Recived_MASTER_ABORT,
-output 			Recived_TARGET_ABORT,
-output 			signaled_TARGET_ABORT,
-output 			Interrupt_status, */
-
-//);
-
-
-
 
 //----- ENDPOINT CORE ------------------//			    
 wire                      trn_reset_n_c;

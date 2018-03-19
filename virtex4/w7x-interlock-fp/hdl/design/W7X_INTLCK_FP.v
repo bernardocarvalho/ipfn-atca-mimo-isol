@@ -20,7 +20,7 @@
 // 		
 // Tested with Linux  3.10.x kernel
 //
-// Copyright 2015 - 2017 IPFN-Instituto Superior Tecnico, Portugal
+// Copyright 2015 - 2018 IPFN-Instituto Superior Tecnico, Portugal
 // Creation Date  2015-06-10
 //
 // Licensed under the EUPL, Version 1.2 or - as soon they
@@ -628,7 +628,6 @@ wire  AD9511_output1; // Only output 1 is needed
 		 .dma_host_addr(PCIe_dma_init_addr), // o 30 bits
 		 .command(commandREG),
 		 .dma_curr_buf(dma_curr_buf),
-//		 .dma_curr_buf(4'b0),
 		 .dma_size(dma_size_i),
 		 .time_counter(time_counter_r),
 		 .status(statusdREG),
@@ -666,8 +665,6 @@ wire  AD9511_output1; // Only output 1 is needed
 		 .trn_clk(PCIe_trn_clk),
 		 .pio_reset_n(PCIe_pio_reset_n),		 
 		 .ff_clk(AD9511_output1), //100 MHz
-		 //.dma_empty_thresh(dma_words_thres_i),
-//		 .int_decimate(int_decimate_i),
 		 .dma_ready(dma_data_ready_i),
 		 .command(commandREG),
 		 .stream_on(stream_on_r),
