@@ -188,10 +188,11 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 	reg [7:0]  ff_clk_cnt = 0;
 
 	wire   [FLOAT_WIDTH-1:0] resultDsp; 
-
-/*Interlock signal is sign bit of result value*/
+	wire   [FLOAT_WIDTH-1:0] absIntegralF; 
+	
+/*Interlock signal is (invert of) sign bit of result value*/
 	reg  interlock_r; 
-	assign interlock_out =interlock_r;
+	assign interlock_out = interlock_r;
 	
 	//reg [15:0] decim_cnt = 0;//16'hFFFF;
 	//reg [FIFO_WIDTH-1:0] smpl_cnt = 0; // Packet counter for Integral packet output
@@ -230,7 +231,7 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 							int_ovrflw[r] <= integral_overflow_f(adc_int[r]);
 						end
 				else if (ff_clk_cnt == 8'h0A)
-						interlock_r <= resultDsp[FLOAT_SIGN_BIT];	 // Interlock is ON if final DSP result is NEGATIVE			
+						interlock_r <= !resultDsp[FLOAT_SIGN_BIT];	 // Interlock is ON if final DSP result is POSITIVE
 				else if (ff_clk_cnt == 8'h0F) 
 						fifo_wr_en_r <= 1'b0;
 			end
@@ -254,7 +255,6 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 //	assign  data_in_ch[13] = data_in_ch14;
 //	assign  data_in_ch[14] = data_in_ch15;
 //	assign  data_in_ch[15] = data_in_ch16;
-
 	
 	genvar i;
 	generate
@@ -292,14 +292,14 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 				4'd9: data32_fifo_in  = data_fp32[3];
 				4'd10: data32_fifo_in = data_fp32[4]; //{16'd0, dac_2compl_i};//fifo_intword32_f(adc_int[0], 3'b010); //adc_int[0][18 +: FIFO_WIDTH];
 				4'd11: data32_fifo_in = data_fp32[5]; 
-				4'd12: data32_fifo_in = dspMult_term[0]; 
+				4'd12: data32_fifo_in = dataDspAddL2;// Integral Matrix Term 		dspMult_term[0]; 
 				4'd13: data32_fifo_in = resultDsp; 
 				//									1 					6				6             18		1
 				4'd14: data32_fifo_in = {interlock_r, int_ovrflw, FpAdd32_ovrflw, 18'd0,adc_chop_dly};//ff_clk_cnt here should be always 0x0E
 				4'd15: data32_fifo_in = clk2M_cnt[FIFO_WIDTH-1:0];
 			endcase
  
-	/* LITLE or BIG ENDIAN change option*/
+	/* Litle or BIG ENDIAN change option*/
 	wire [FIFO_WIDTH-1:0] fifo_endian_in ;
 	assign fifo_endian_in = (command[ENDIAN_DMA_BIT])?  data32_fifo_in : // Big Endian data
 		{data32_fifo_in[7:0], data32_fifo_in[15:8], data32_fifo_in[23:16], data32_fifo_in[31:24]};
@@ -326,7 +326,6 @@ Depth :65536 words = 256 kBytes = 4096 samples
 		.prog_empty(fifo_empty_i)					//output
 	);
 
-
 	assign dma_ready = ~fifo_empty_i;
 
 // initial term calculation
@@ -348,7 +347,6 @@ Depth :65536 words = 256 kBytes = 4096 samples
 		);
 		end	
    endgenerate
-
 
 // First Level Summer
 	FpAdd32 inst_FpAdd32_a0 (
@@ -384,10 +382,16 @@ Depth :65536 words = 256 kBytes = 4096 samples
      .overflow(FpAdd32_ovrflw[4]), 
 	  .result(dataDspAddL2) 
 	);
-// Final Summer,  Offset term Coef
-	FpAdd32 finalAdder_FpAdd32_a2 (
-	  .a(dataDspAddL2), 
-	  .b(coeff_r[6]), //dataDspAddL1[1]
+	
+	/* Absolute value for a float 32:
+			bits.stephan-brumme.com/absFloat.html
+	*/
+	assign absIntegralF = {1'b0, dataDspAddL2[FLOAT_WIDTH - 2:0]};  
+
+	// Final Summer,  Offset term Coef
+	FpSubtract32 interlock_FpSub32_a2 (
+	  .a(absIntegralF), 
+	  .b(coeff_r[6]), 
      .overflow(FpAdd32_ovrflw[5]), 
 	  .result(resultDsp) 
 	);
@@ -395,18 +399,17 @@ Depth :65536 words = 256 kBytes = 4096 samples
 	assign dsp_out=resultDsp; 
 /* DAC data MUX*/
 
-/*Conversion float to int16*/
+	/*Conversion float to int16*/
 	FpDacOut inst_FpDacOut (
 	  .a(resultDsp), // input [31 : 0] a
 	  .clk(ff_clk), 
 	  .result(dac_2compl_i) // output [15 : 0] result
 	);
 
-/* DAC chip is Offset Binary, so here is conversion from 2-complement*/   
+	/* DAC chip is Offset Binary, so here is conversion from 2-complement*/   
 	wire [DAC_DATA_WIDTH-1:0] dac_out_i;
 	assign dac_out_i = dac_offset_binary_f(dac_2compl_i, 16'h8000);
 
 	assign dac_out = dac_out_i;
-   
 						
 endmodule
