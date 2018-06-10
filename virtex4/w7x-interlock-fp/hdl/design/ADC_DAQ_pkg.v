@@ -12,7 +12,7 @@
 // Tool versions: 
 // Description:  General definitions for other modules
 //
-// Copyright 2015 - 2017 IPFN-Instituto Superior Tecnico, Portugal
+// Copyright 2015 - 2018 IPFN-Instituto Superior Tecnico, Portugal
 // Creation Date  2015-06-10
 //
 // Licensed under the EUPL, Version 1.2 or - as soon they
@@ -34,7 +34,7 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////////
-parameter FW_VERSION = 8'hAE;
+parameter FW_VERSION = 8'hB1;
 
 parameter MEM32_bar =  2'b01; // BAR 0
 parameter BAR0 =  MEM32_bar;
@@ -51,18 +51,16 @@ parameter PCIE_DATA_WIDTH = 32;
 parameter ADC_DATA_WIDTH = 18;
 parameter DAC_DATA_WIDTH = 16;
 
-//parameter STATUS_REVID_a = {BAR1,1'b0,8'h00};
 //parameter COMMAND_a = {BAR1,1'b0,8'h01};
-
 
 //Register Address
 parameter STATUS_REVID_a = 8'd0;
 parameter COMMAND_a = 8'd1;
 parameter ACQFREQ_a = 8'd2;
-//parameter DMA_REG_a = 8'd3;  //NOT USED
+//parameter DMA_REG_a = 8'd3;  
 parameter DMA_CURR_BUFF_a = 8'd4; //addr 0x10
 parameter HW_COUNTER_a = 8'd5; 
-//parameter TRIG_DLY_a = 8'd6; //Trigger Delay
+
 // reserved
 parameter DMA_BUFF_0_a = 8'd8;    // addr 0x20
 parameter DMA_BUFF_1_a = 8'd9;
@@ -126,16 +124,6 @@ parameter CHOP_RECONSTRUCT_BIT = 5'd12; // State of Chop Recontruction, if equal
 
 parameter STREAME_BIT = 5'd19 ; // Streaming enable 
 //parameter ACQS = 5'd20; // Aquisitio Source: 0- shared ATCA clocks, 1-internal clocks
-//parameter ACQT = 5'd21; 
-//parameter ACQK = 5'd22; 
 
 parameter ACQE_BIT = 5'd23; 
 parameter STRG_BIT = 5'd24; // soft Trigger
-
-//parameter TRGS = 5'd25; // Trigger Source: 0- shared on ATCA, 1-internal (soft/hard)
-//parameter DMAE = 5'd27;
-//parameter ACQiE = 5'd31;
-//parameter DMAiE = 5'd30;
-
-
-//parameter SYNCTOAQDLY= 7'd5; // delay in ddr_clk ticks between ADC sampling and write ops to account for FIRs and logic

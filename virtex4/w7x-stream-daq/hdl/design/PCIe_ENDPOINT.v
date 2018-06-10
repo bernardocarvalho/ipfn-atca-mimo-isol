@@ -7,35 +7,19 @@
 // Design Name:  
 // Module Name: PCIe_ENDPOINT 
 // Target Devices: XC4VFX
-// Tool versions: ISE 14.7
+// Tool versions: ISE10.1
 // Description: INTERFACE PCIe logic Core - RX module - TX_DMA module and Turnoff module
 //
+//-- SVN keywords
+// $Date: 2015-06-11 19:02:21 +0100 (Thu, 11 Jun 2015) $
+// $Revision: 7422 $
+// $URL: http://metis.ipfn.ist.utl.pt:8888/svn/cdaq/ATCA/ATCA-IO-CONTROL/IPP/W7X_STREAM_DAQ/hdl/design/PCIe_ENDPOINT.v $
 
-// Copyright 2008 - 2017 IPFN-Instituto Superior Tecnico, Portugal
-// Creation Date  21:52:50 07/02/2008
-//
-// Licensed under the EUPL, Version 1.2 or - as soon they
-// will be approved by the European Commission - subsequent
-// versions of the EUPL (the "Licence");
-//
-// You may not use this work except in compliance with the
-// Licence.
-// You may obtain a copy of the Licence at:
-//
-// https://joinup.ec.europa.eu/software/page/eupl
-//
-// Unless required by applicable law or agreed to in
-// writing, software distributed under the Licence is
-// distributed on an "AS IS" basis,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
-// express or implied.
-// See the Licence for the specific language governing
-// permissions and limitations under the Licence.
-//
 // Dependencies: 
-//    PCIe 3.7 Xilinx IP core (needs special license to Generate)
 //
-//
+// Revision: 
+// Revision 0.01 - File Created
+// Additional Comments: 
 //
 //////////////////////////////////////////////////////////////////////////////////
 module PCIe_ENDPOINT(
@@ -72,6 +56,30 @@ module PCIe_ENDPOINT(
 	output 		  pio_reset_n
 
 );
+//DEBUG 
+/*output  		   ACQC, 
+output 		   DMAC,  
+output			start_interrupt,
+output 			half_mem,
+output         empty_dma_fifo, 
+output         rd_en, 
+output         DMAn, 
+output         DMAE_r3, 
+output         trig_cbuffer,
+output         cfg_interrupt_n_out,
+output 			cfg_interrupt_rdy_n_out,
+
+
+output 			SERR_Enable,
+output 			Recived_MASTER_ABORT,
+output 			Recived_TARGET_ABORT,
+output 			signaled_TARGET_ABORT,
+output 			Interrupt_status, */
+
+//);
+
+
+
 
 //----- ENDPOINT CORE ------------------//			    
 wire                      trn_reset_n_c;
@@ -197,7 +205,7 @@ always @(posedge trn_clk_c or negedge pio_reset_n)
 
 wire [4:0] trn_tbuf_av;
 	
-pcie37    ep (
+pcie_id20    ep (
 // 
 // PCI Express Fabric Interface
       .pci_exp_txp				(pci_exp_txp),              // O [7/3/0:0]
