@@ -1,0 +1,10 @@
+Package: atca-ioc-w7x-intrlck-driver-dkms
+Version: @@PACKAGE_VERSION@@
+Section: kernel
+Priority: optional
+Architecture: amd64
+Maintainer: Max-Planck-Institut für Plasmaphyisk, CoDaC
+Homepage: http://www.ipp.mpg.de
+Description: Kernel module for ATCA MIMO32 devices with interlock functionality (provided by IST)
+Depends: dkms
+

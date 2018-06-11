@@ -62,15 +62,20 @@ endif
 EXTRA_CFLAGS += -I$(LDDINC)
 EXTRA_CFLAGS += $(DEBFLAGS)
 
-KERNEL_VERSION := $(shell uname -r)
-PACKAGE_NAME := atca-ioc-w7x-intrlck-driver-${KERNEL_VERSION}
+PACKAGE_NAME := atca-ioc-w7x-intrlck-driver-dkms
 PACKAGE_VERSION=0.0.0
 
 DEBPKG_NAME := $(PACKAGE_NAME)-$(PACKAGE_VERSION)
-DEBPKG_MODULE_DIR := $(DEBPKG_NAME)/lib/modules/$(KVER)/kernel/drivers/atca
+DEBPKG_DKMS_SOURCES_DIR := $(DEBPKG_NAME)/usr/src/atca-ioc-w7x-intrlck-driver-$(PACKAGE_VERSION)
 DEBPKG_UDEV_RULES_DIR := $(DEBPKG_NAME)/etc/udev/rules.d
 DEBPKG_DEBIAN_DIR := $(DEBPKG_NAME)/DEBIAN
-DEBPKG_FILES := $(DEBPKG_MODULE_DIR)/$(TARGET) $(DEBPKG_UDEV_RULES_DIR)/atca_ioc.rules $(DEBPKG_DEBIAN_DIR)/control $(DEBPKG_DEBIAN_DIR)/postinst $(DEBPKG_DEBIAN_DIR)/prerm $(DEBPKG_DEBIAN_DIR)/postrm
+DEBPKG_FILES := $(DEBPKG_DKMS_SOURCES_DIR)/src/driver/Makefile \
+                $(DEBPKG_DKMS_SOURCES_DIR)/src/driver/atca-ioc-int-drv.c $(DEBPKG_DKMS_SOURCES_DIR)/src/driver/common.h \
+                $(DEBPKG_DKMS_SOURCES_DIR)/src/driver/config.h $(DEBPKG_DKMS_SOURCES_DIR)/src/driver/ioctl.c  \
+                $(DEBPKG_DKMS_SOURCES_DIR)/src/driver/ioctl.h $(DEBPKG_DKMS_SOURCES_DIR)/src/include/atca-ioc-int.h \
+                $(DEBPKG_DKMS_SOURCES_DIR)/src/include/atca-ioc-int-ioctl.h $(DEBPKG_DKMS_SOURCES_DIR)/dkms.conf \
+                $(DEBPKG_DEBIAN_DIR)/control $(DEBPKG_DEBIAN_DIR)/postinst $(DEBPKG_DEBIAN_DIR)/prerm \
+                $(DEBPKG_UDEV_RULES_DIR)/atca_ioc.rules
 DEBPKG_TARGET := $(DEBPKG_NAME).deb
 
 
@@ -102,32 +107,22 @@ package: $(DEBPKG_TARGET)
 $(DEBPKG_TARGET): $(DEBPKG_FILES)
 	@fakeroot dpkg --build $(DEBPKG_NAME)
 
-$(DEBPKG_MODULE_DIR)/$(TARGET): $(TARGET) $(DEBPKG_MODULE_DIR)
-	@install -D -m 644 $(TARGET) $(DEBPKG_MODULE_DIR)/$(TARGET)	
+$(DEBPKG_DKMS_SOURCES_DIR)/src/driver/%: %
+	@install -D -m 644 $< $@
 
-$(DEBPKG_UDEV_RULES_DIR)/atca_ioc.rules: atca_ioc.rules $(DEBPKG_UDEV_RULES_DIR)
-	@install -m 0644 atca_ioc.rules $(DEBPKG_UDEV_RULES_DIR)
+$(DEBPKG_DKMS_SOURCES_DIR)/src/include/%: ../include/%
+	@install -D -m 644 $< $@
 
-$(DEBPKG_DEBIAN_DIR)/control: $(DEBPKG_DEBIAN_DIR)
-	@echo "Package: ${PACKAGE_NAME}\nVersion: ${PACKAGE_VERSION}\nSection: kernel\nPriority: optional\nArchitecture: amd64\nMaintainer: Max-Planck-Institut für Plasmaphyisk, CoDaC\nHomepage: http://www.ipp.mpg.de\nDescription: Kernel module for ATCA MIMO32 devices with interlock functionality (provided by IST)\nDepends: linux-image-$(KERNEL_VERSION)\n" > "${DEBPKG_DEBIAN_DIR}/control"
+$(DEBPKG_UDEV_RULES_DIR)/%: %
+	@install -D -m 0644 $< $@
 
-$(DEBPKG_DEBIAN_DIR)/postinst: $(DEBPKG_DEBIAN_DIR)
-	@echo "#!/bin/sh\n\n/sbin/depmod $(KERNEL_VERSION) || true\n" > "${DEBPKG_DEBIAN_DIR}/postinst"
-	@chmod 0755 "${DEBPKG_DEBIAN_DIR}/postinst"
+$(DEBPKG_DKMS_SOURCES_DIR)/dkms.conf: package_resources/dkms.conf
+	@install -D -m 644 $< $@
 
-$(DEBPKG_DEBIAN_DIR)/prerm: $(DEBPKG_DEBIAN_DIR)
-	@echo "#!/bin/sh\n\nif lsmod | grep atca_ioc_w7x_intrlck > /dev/null 2>&1 ; then\n  /sbin/rmmod atca_ioc_w7x_intrlck || true\nfi\n" > "${DEBPKG_DEBIAN_DIR}/prerm"
-	@chmod 0755 "${DEBPKG_DEBIAN_DIR}/prerm"
+$(DEBPKG_DEBIAN_DIR)/control: package_resources/control
+	@install -D -m 0644 package_resources/control $(DEBPKG_DEBIAN_DIR)/control
+	@sed -i 's/@@PACKAGE_VERSION@@/$(PACKAGE_VERSION)/g' $(DEBPKG_DEBIAN_DIR)/control
 
-$(DEBPKG_DEBIAN_DIR)/postrm: $(DEBPKG_DEBIAN_DIR)
-	@echo "#!/bin/sh\n\n/sbin/depmod $(KERNEL_VERSION) || true\n" > "${DEBPKG_DEBIAN_DIR}/postrm"
-	@chmod 0755 "${DEBPKG_DEBIAN_DIR}/postrm"
-
-$(DEBPKG_MODULE_DIR):
-	@mkdir -p $(DEBPKG_MODULE_DIR)
-
-$(DEBPKG_UDEV_RULES_DIR):
-	@mkdir -p $(DEBPKG_UDEV_RULES_DIR)
-
-$(DEBPKG_DEBIAN_DIR):
-	@mkdir -p $(DEBPKG_DEBIAN_DIR)
+$(DEBPKG_DEBIAN_DIR)/%: package_resources/%
+	@install -D -m 0755 $< $@
+	@sed -i 's/@@PACKAGE_VERSION@@/$(PACKAGE_VERSION)/g' $@
