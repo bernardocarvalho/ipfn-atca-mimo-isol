@@ -277,7 +277,7 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 	/*Integral Mux. 128 byte packet*/ 
 	wire [3:0] mux_adc = ff_clk_cnt[3:0];
 	reg [FIFO_WIDTH-1:0] data32_fifo_in = 0;			
-	always @ (mux_adc, clk2M_cnt, adc_chop_dly, ff_clk_cnt, dspMult_term[0], resultDsp, data_fp32[0], interlock_r, int_ovrflw, FpAdd32_ovrflw)
+	always @ (mux_adc, clk2M_cnt, adc_chop_dly, ff_clk_cnt, dspMult_term[0], resultDsp, data_fp32[0], interlock_r, dataDspAddL2, int_ovrflw, FpAdd32_ovrflw)
 	
 		case (mux_adc)
 				4'd0: data32_fifo_in  = fifo_adcword32_f(data_in_ch[0]); 
