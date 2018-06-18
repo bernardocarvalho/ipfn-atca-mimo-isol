@@ -1,9 +1,10 @@
-//`timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: IPFN - IST 
 // Engineer: B. Carvalho
 // 
 // Create Date:    13:47:38 26/05/2014 
+// Revision Date:  2018-06-18
+// 
 // 
 // Design Name: 
 // Module Name:    ADC_DAQ_pkg 
@@ -34,7 +35,7 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////////
-parameter FW_VERSION = 8'hB1;
+parameter FW_VERSION = 8'hB2;
 
 parameter MEM32_bar =  2'b01; // BAR 0
 parameter BAR0 =  MEM32_bar;
@@ -94,7 +95,8 @@ parameter DAC_8_a = 8'd37;
 parameter CHOP_MAX_COUNT_a    = 8'd40;
 parameter CHOP_CHANGE_COUNT_a = 8'd41;
 
-parameter HOLD_SAMPLES = 3; // Ignore 3 samples in Integral calculation for spike removal
+parameter HOLD_SAMPLES = 0; // Do not perfomr spike removal
+//3; // Ignore 3 samples in Integral calculation for spike removal
 
 //parameter INTEGR_DECIM_a= 8'd42;
 

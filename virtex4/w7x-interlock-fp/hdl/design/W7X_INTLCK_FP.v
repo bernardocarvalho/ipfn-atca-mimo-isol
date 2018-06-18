@@ -21,7 +21,8 @@
 // Tested with Linux  3.10.x kernel
 //
 // Copyright 2015 - 2018 IPFN - Instituto Superior Tecnico, Portugal
-// Creation Date  2015-06-10
+// Creation Date:  2015-06-10
+// Revision Date:  2018-06-18
 //
 // Licensed under the EUPL, Version 1.2 or - as soon they
 // will be approved by the European Commission - subsequent
@@ -40,11 +41,9 @@
 // See the Licence for the specific language governing
 // permissions and limitations under the Licence.
 //
-//
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 `timescale 1ns / 1ps
-
 module W7X_INTLCK_FP (
 	input [16:1] ADC_CLK_P,
 	input [16:1] ADC_CLK_N,
@@ -64,11 +63,6 @@ module W7X_INTLCK_FP (
 	output [8:1] DAC_ENABLE,
 
 	input SYSACE_CLOCK,
-
-	//input CLK_250_P,   Not used..
-	//input CLK_250_N,
-	//input CLK_100_SSC_P, // not used
-	//input CLK_100_SSC_N,
 
 	output AD9511_REF_P,
 	output AD9511_REF_N,
@@ -96,8 +90,8 @@ module W7X_INTLCK_FP (
 	input ATCA_RX_3A, // ATCA PCIe reset input active on 0
 
 	output ATCA_TX_1A, // Master ATCA Shared clock output
-	output ATCA_TX_2A, // Do not use
-	output ATCA_TX_3A, // Do not use
+	output ATCA_TX_2A, // Do not drive this pin
+	output ATCA_TX_3A, // Do not drive this pin
 	output ATCA_TX_1B, // ATCA  trigger_n driver
 	output ATCA_TX_2B,
 	output ATCA_TX_1A_ENABLE,
@@ -389,7 +383,8 @@ wire  AD9511_output1; // Only output 1 is needed
 	/*Both triggers are ORed before sending to ATCA Backplane*/
 	wire ored_trigger_n = soft_trigger_n & hard_trigger_n;
 	
-	wire  local_trigger_n = (master)? ATCA_trigger_n : (ATCA_trigger_n & soft_trigger_n ); // if slave, trigger on own soft trigger
+//	wire  local_trigger_n = (master)? ATCA_trigger_n : (ATCA_trigger_n & soft_trigger_n ); // if slave, trigger on own soft trigger in multiboard ATCA systems
+	wire  local_trigger_n = ored_trigger_n; // For testing, no  need to broadcast the trigger
 
 	reg  acq_r = 0; 
 	
@@ -673,7 +668,6 @@ wire  AD9511_output1; // Only output 1 is needed
 		 .wordSync_n(ADCs_wordSync_n_i),
 		 .trigger_n(local_trigger_n), // resets counters. Signal sync with ADCs_wordSync_n_i
 		 .acq_on(acq_r),
-//		 .time_counter(time_counter_r),
 		 .adc_chop_dly(adc_chop_dly_i),
 		 .int_data_hold(adc_int_data_hold_i),
 		  // IPP W7-X Interlock Input ADC Channels 
@@ -683,23 +677,6 @@ wire  AD9511_output1; // Only output 1 is needed
 		 .data_in_ch4(c_data[7]),  // 1-QXD31CE401 (compensation coil 4), in url coda-station count channel number: 6
 		 .data_in_ch5(c_data[9]),  // 1-QXD31CE001 (diamagnetic loop), in url coda-station count channel number: 8
 		 .data_in_ch6(c_data[11]), // 1-QXR40CE001 -  Rogowski coil, in url coda-station count channel number: 10
-		 
-//		 .data_in_ch1(c_data[1]),  
-//		 .data_in_ch2(c_data[2]), 
-//		 .data_in_ch3(c_data[3]), 
-//		 .data_in_ch4(c_data[4]), 
-//		 .data_in_ch5(c_data[5]), 
-//		 .data_in_ch6(c_data[6]), 
-//		 .data_in_ch7(c_data[7]), 
-//		 .data_in_ch8(c_data[8]), 
-//		 .data_in_ch9(c_data[9]), 
-//		 .data_in_ch10(c_data[10]), 
-//		 .data_in_ch11(c_data[11]), 
-//		 .data_in_ch12(c_data[12]), 
-//		 .data_in_ch13(c_data[13]), 
-//		 .data_in_ch14(c_data[14]), 
-//		 .data_in_ch15(c_data[15]), 
-//		 .data_in_ch16(c_data[16]),
 
 		 .interlock_out(interlock_out_i),
 		 .dac_out(dac_out_i),

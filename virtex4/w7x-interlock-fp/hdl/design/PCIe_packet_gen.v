@@ -17,14 +17,14 @@
 //				RT_FIFO.xco
 //				FpMult32.xco
 //				FpAdd32.xco
+//				FpSubtract32.xco
 //				FP48.xco
 //
-// Revision: 
-// Revision 0.01 - File Created
 // Additional Comments: 
 //
 // Copyright 2015 - 2017 IPFN-Instituto Superior Tecnico, Portugal
 // Creation Date   13:47:38 26/05/2014 
+// Revision Date:  2018-06-18
 //
 // Licensed under the EUPL, Version 1.2 or - as soon they
 // will be approved by the European Commission - subsequent
@@ -46,8 +46,6 @@
 //
 //
 ///////////////////////////////////////////////////////////////////////////////////
-
-
 module PCIe_packet_gen(
 	 input trn_clk,
 	 input pio_reset_n,
@@ -82,11 +80,11 @@ module PCIe_packet_gen(
 parameter FIFO_WIDTH = 32;    
 parameter FLOAT_WIDTH = 32;
 parameter FLOAT_SIGN_BIT = 31;    
-parameter INTEGER_WIDTH = 48 ;    
-parameter FRACTIONAL_WIDTH = 16 ;      
+parameter INTEGER_WIDTH = 48;    
+parameter FRACTIONAL_WIDTH = 16;      
 parameter INTEGRAL_WIDTH = INTEGER_WIDTH + FRACTIONAL_WIDTH;    
 parameter WO_EXTEND_BITS = INTEGRAL_WIDTH - 32 ;    
-parameter REC_EXTEND_BITS = INTEGER_WIDTH - ADC_DATA_WIDTH ;   //30
+parameter REC_EXTEND_BITS = INTEGER_WIDTH - ADC_DATA_WIDTH;   //30
 
 /*********** Function Declarations ***************/
 // EO correction and chop phase reconstruction  	
@@ -110,7 +108,7 @@ function  [FIFO_WIDTH-1:0] fifo_adcword32_f;
 // Detection of Integral Overflow ( if 4 MSB bits of the integer integral calculation are reached)
 function  integral_overflow_f;
     input [INTEGRAL_WIDTH-1:0] int_val;	 
-		integral_overflow_f = int_val[INTEGRAL_WIDTH-1] ^ (int_val[INTEGRAL_WIDTH-2] | int_val[INTEGRAL_WIDTH-3]| int_val[INTEGRAL_WIDTH-3] );
+		integral_overflow_f = int_val[INTEGRAL_WIDTH-1] ^ (int_val[INTEGRAL_WIDTH-2] | int_val[INTEGRAL_WIDTH-3]| int_val[INTEGRAL_WIDTH-4]);
 endfunction
 
 // Integer (Full 48.16 resolution calculatio and WO compensation
@@ -134,9 +132,9 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
   
 /*********** End Function Declarations ***************/ 	
 
-	reg [ADC_DATA_WIDTH-1:0] adc_off_r[0:(N_ADC_CHANNELS-1)]; // array of  18-bit registers 
+	reg [ADC_DATA_WIDTH-1:0] adc_off_r[0:(N_ADC_CHANNELS-1)];  // array of  18-bit registers 
 	reg [PCIE_DATA_WIDTH-1:0] int_off_r[0:(N_INT_CHANNELS-1)]; // array  32-bit registers 16 int + 16 fractional
-	reg [PCIE_DATA_WIDTH-1:0] coeff_r[0:(N_ADC_CHANNELS)]; // array of  6 + 1  
+	reg [PCIE_DATA_WIDTH-1:0] coeff_r[0:(N_ADC_CHANNELS)];     // array of  6 + 1  
 
 	integer r;
 		
@@ -190,12 +188,10 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 	wire   [FLOAT_WIDTH-1:0] resultDsp; 
 	wire   [FLOAT_WIDTH-1:0] absIntegralF; 
 	
-/*Interlock signal is (invert of) sign bit of result value*/
+	/*Interlock signal is (invert of) sign bit of result value*/
 	reg  interlock_r; 
-	assign interlock_out = interlock_r;
+	assign interlock_out = interlock_r; // interlock must be a synchronous signal to avoid spikes
 	
-	//reg [15:0] decim_cnt = 0;//16'hFFFF;
-	//reg [FIFO_WIDTH-1:0] smpl_cnt = 0; // Packet counter for Integral packet output
 	// *******************  FIFO input logic (mux et al)  ********************* 
 	always @ (posedge ff_clk or negedge stream_on)
 	begin
@@ -245,16 +241,6 @@ function signed [DAC_DATA_WIDTH-1:0] dac_offset_binary_f;
 	assign  data_in_ch[3] = data_in_ch4;
 	assign  data_in_ch[4] = data_in_ch5;
 	assign  data_in_ch[5] = data_in_ch6;
-//	assign  data_in_ch[6] = data_in_ch7;
-//	assign  data_in_ch[7] = data_in_ch8;
-//	assign  data_in_ch[8] = data_in_ch9;
-//	assign  data_in_ch[9] = data_in_ch10;
-//	assign  data_in_ch[10] = data_in_ch11;
-//	assign  data_in_ch[11] = data_in_ch12;
-//	assign  data_in_ch[12] = data_in_ch13;
-//	assign  data_in_ch[13] = data_in_ch14;
-//	assign  data_in_ch[14] = data_in_ch15;
-//	assign  data_in_ch[15] = data_in_ch16;
 	
 	genvar i;
 	generate
@@ -370,10 +356,10 @@ Depth :65536 words = 256 kBytes = 4096 samples
 	);
 // Second Level Summer
 	FpAdd32 inst_FpAdd32_a1 (
-	  .a(dataDspAddL0[0]), // 
-	  .b(dataDspAddL0[1]), // 
+	  .a(dataDspAddL0[0]),  
+	  .b(dataDspAddL0[1]),  
      .overflow(FpAdd32_ovrflw[3]), 
-	  .result(dataDspAddL1) //  [0]
+	  .result(dataDspAddL1) 
 	);
 	//  	
 	FpAdd32 inst_FpAdd32_b1 (
@@ -397,7 +383,7 @@ Depth :65536 words = 256 kBytes = 4096 samples
 	);
 
 	assign dsp_out=resultDsp; 
-/* DAC data MUX*/
+  /* DAC data MUX*/
 
 	/*Conversion float to int16*/
 	FpDacOut inst_FpDacOut (
