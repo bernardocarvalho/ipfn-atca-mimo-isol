@@ -550,3 +550,26 @@ TIMESPEC "TS_SYS_CLK_200" = PERIOD "SYS_CLK_200" 5.0 ns HIGH 50 %;
 ################################################################################
 ## End
 ################################################################################
+
+## Timing Report as of 26-06-26, 3 Failing Constrains
+# ================================================================================ 
+# Timing constraint: TS_clk_100M = PERIOD TIMEGRP "clk_100M" 10 ns HIGH 50%; 
+# For more information, see Period Analysis in the Timing Closure User Guide (UG612). 
+#  484008496858066980000000000000000000000000000000 paths analyzed, 5956 endpoints analyzed, 1246 failing endpoints 
+#  1246 timing errors detected. (1246 setup errors, 0 hold errors, 0 component switching limit errors) 
+#  Minimum period is 109.486ns.
+
+#================================================================================ 
+# Timing constraint: TS_CLK2 = PERIOD TIMEGRP "TNM_NET_CLK2" TS_CLK0 * 2 HIGH 50% PRIORITY 0; 
+# For more information, see Period Analysis in the Timing Closure User Guide (UG612). 
+#  75139 paths analyzed, 20456 endpoints analyzed, 2301 failing endpoints 
+#  2301 timing errors detected. (2301 setup errors, 0 hold errors, 0 component switching limit errors) 
+#  Minimum period is  10.133ns. 
+
+# ================================================================================ 
+# Timing constraint: TS_CLK0 = PERIOD TIMEGRP "TNM_NET_CLK0" 125 MHz HIGH 50% PRIORITY 1; 
+# For more information, see Period Analysis in the Timing Closure User Guide (UG612). 
+#  43902 paths analyzed, 6530 endpoints analyzed, 31 failing endpoints 
+#  31 timing errors detected. (31 setup errors, 0 hold errors, 0 component switching limit errors) 
+#  Minimum period is   8.432ns. 
+# -------------------------------------------------------------------------------- 
