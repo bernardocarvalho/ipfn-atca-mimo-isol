@@ -12,7 +12,7 @@
 //
 // Dependencies: 
 //
-// Revision: 
+// Revision: 26/06/2018
 // Revision 0.01 - File Created
 // Additional Comments: 
 //
@@ -22,9 +22,8 @@
 // $URL: http://metis.ipfn.ist.utl.pt:8888/svn/cdaq/ATCA/ATCA-IO-CONTROL/IPP/W7X_INTLCK_FP/hdl/design/chop_gen.v $
 //
 //////////////////////////////////////////////////////////////////////////////////
-module CHOP_GEN #
-(
-	parameter HOLD_SAMPLES = 3 // Ignore 3 samples in Integral calculation TODO : check how to remove data holding
+module CHOP_GEN #(
+	parameter HOLD_SAMPLES = 3 // Ignore 3 samples in Integral calculation
 )
 (
     input clk,
@@ -43,16 +42,16 @@ module CHOP_GEN #
 	assign chop_o = chop_r;
 
 	reg hold_r=0;
-	reg [CHOP_DELAY:1] hold_dly = 0;
-	assign data_hold_o = hold_dly[CHOP_DELAY -1]; // 26/06/2018 Signal was advanced one sample
+	reg [CHOP_DELAY-1:1] hold_dly = 0;
+	assign data_hold_o = hold_dly[CHOP_DELAY-1];// 26/06/2018 Signal was advanced one sample
 	
 	reg [CHOP_DELAY:1] chop_dly = 0;
 	assign chop_dly_o = chop_dly[CHOP_DELAY];
-		
+	
 	always @ (negedge clk)
 		begin
+			hold_dly <= {hold_dly[(CHOP_DELAY-2):1], hold_r};
 			chop_dly <= {chop_dly[(CHOP_DELAY-1):1], chop_r};
-			hold_dly <= {hold_dly[(CHOP_DELAY-1):1], hold_r};
 		end	
 
 	reg [31:0] chop_counter_r = 0; 
