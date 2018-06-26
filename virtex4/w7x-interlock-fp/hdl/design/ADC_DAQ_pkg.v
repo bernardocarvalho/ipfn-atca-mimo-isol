@@ -35,7 +35,7 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////////
-parameter FW_VERSION = 8'hB2;
+parameter FW_VERSION = 8'hB3;
 
 parameter MEM32_bar =  2'b01; // BAR 0
 parameter BAR0 =  MEM32_bar;
@@ -95,10 +95,7 @@ parameter DAC_8_a = 8'd37;
 parameter CHOP_MAX_COUNT_a    = 8'd40;
 parameter CHOP_CHANGE_COUNT_a = 8'd41;
 
-parameter HOLD_SAMPLES = 0; // Do not perfomr spike removal
-//3; // Ignore 3 samples in Integral calculation for spike removal
-
-//parameter INTEGR_DECIM_a= 8'd42;
+parameter HOLD_SAMPLES = 3; // Ignore 3 samples in Integral calculation for spike removal TODO : check how to remove data holding
 
 parameter REG_OFFSET_a  = 8'd50;
 parameter REG_DATA_a    = 8'd51;

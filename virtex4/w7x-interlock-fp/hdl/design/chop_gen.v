@@ -24,11 +24,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 module CHOP_GEN #
 (
-	parameter HOLD_SAMPLES = 3 // Ignore 3 samples in Integral calculation
+	parameter HOLD_SAMPLES = 3 // Ignore 3 samples in Integral calculation TODO : check how to remove data holding
 )
 (
     input clk,
-    //input reset_n,
     input chop_en,
     input chop_default,
     input [31:0] change_count,
@@ -45,13 +44,11 @@ module CHOP_GEN #
 
 	reg hold_r=0;
 	reg [CHOP_DELAY:1] hold_dly = 0;
-	assign data_hold_o = hold_dly[CHOP_DELAY];// hold_r;
+	assign data_hold_o = hold_dly[CHOP_DELAY -1]; // 26/06/2018 Signal was advanced one sample
 	
 	reg [CHOP_DELAY:1] chop_dly = 0;
 	assign chop_dly_o = chop_dly[CHOP_DELAY];
-	
-	
-	//wire adchp_dly=; 
+		
 	always @ (negedge clk)
 		begin
 			chop_dly <= {chop_dly[(CHOP_DELAY-1):1], chop_r};
