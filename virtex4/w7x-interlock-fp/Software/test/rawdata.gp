@@ -20,8 +20,8 @@ set ytics nomirror
 #set yrange [-5000:-1000]
 #set y2range [-2:2]
 
-dfile='rawdata.bin'
-cfile='chop.bin'
+dfile='../apps/rawdata.bin'
+cfile='../apps/chopdata.bin'
 #
 sampl_freq = 2000000.0
 sampl_per = 0.0000005
@@ -57,8 +57,8 @@ plot dfile binary format='%8int32' every plot_dec::firstl:0:endl  using ($0*1/2e
 #     dfile binary format='%8int32' every plot_dec::firstl:0:endl  using ($0/2e3):(($10+612)*scaleY) w linesp lt 2  title 'Ch9',\
 
 
-#set term x11
+set term x11
 
-set term wxt
+#set term wxt
 replot
 pause -1 "Hit return to continue"

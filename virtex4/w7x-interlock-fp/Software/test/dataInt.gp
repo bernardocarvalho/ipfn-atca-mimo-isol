@@ -11,7 +11,7 @@ set xlabel 'Time (s)'
 set ylabel 'int [LSB*Sample]'
 set title 'Integral Data'
 
-datafile='dataInt.bin'
+datafile='../apps/intFdata.bin'
 sampl_freq = 2000000.0
 sampl_per = 0.0000005 
 plot_dec = 1000 
