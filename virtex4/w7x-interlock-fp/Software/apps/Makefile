@@ -15,7 +15,7 @@ COMMON_OBJS := $(patsubst %.c, %.o, $(notdir $(COMMON_SRC)))
 
 #OBJ = atca-ioc-int-lib.o 
 #DEPS = atca-ioc-int-lib.h common.h
-LDFLAGS =  -lconfig -lm # -lrt -lrt
+LDFLAGS =  -lconfig -lm -lrt #-lrt
 
 
 default: acqDataProc 
