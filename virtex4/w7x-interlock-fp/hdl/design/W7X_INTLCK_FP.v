@@ -2,7 +2,7 @@
 // Company: INSTITUTO DOS PLASMAS E FUSAO NUCLEAR
 // Engineer: AJNB  & BBC
 //
-// Project Name:   W7X_INTLCK_FP
+// Project Name:   W7X_INTLCK_FP (COMPASS)
 // Design Name:    ATCA-MIMO-ISOL INTERLOCK Streaming and Processing FW. 6 Channels.  
 // Module Name:    W7X_INTLCK_FP
 // Target Devices: XC4VFX60-11FF1152 
@@ -78,7 +78,8 @@ module W7X_INTLCK_FP (
 	output AD9511_SCLK,
 	output AD9511_SDIO,
 
-	input  RS485_RX_1, 
+	input  RS485_RX_1, // Trigger on COMPASS
+	input  RS485_RX_2,  // 2Mhz on COMPASS
 	input  RS485_RX_4, 
 	output [8:1] RS485_TX,
 	output [8:1] RS485_TX_ENABLE,
@@ -238,6 +239,7 @@ wire  AD9511_output1; // Only output 1 is needed
  ATCA Backplane:                                                                      |
                                                                                       |
 		|---------->ATCA_RX_1A -----> (shared signal) -> (BUFG)-> ATCA_shared_clk ----->|
+ 		|  			ATCA_RX_1B -----> (shared signal) -> (BUFG)-> ATCA_shared_clk
  		|  			ATCA_RX_2 
 		|           ATCA_TX_3 
       |
@@ -246,8 +248,8 @@ wire  AD9511_output1; // Only output 1 is needed
                                               |
                                               |
                                               | 
- RTM ->(RS485) -> RS485_RX_1 --->(BUFG)->-----|           RS485_RX_1_buf (10 Mhz)
-                  RS485_RX_4 -------------------------->  |detect H-to-L| --->  	(Ext TTE trigger, Activ Low)
+ RTM ->(RS485) -> RS485_RX_2 --->(BUFG)->-----|           RS485_RX_2_buf (10 Mhz) TODO: change to 2Mhz
+                  RS485_RX_1 -------------------------->  |detect H-to-L| --->  	(Ext TTE trigger, Activ Low)
 
 		    <--------RS485_TX[5]-----------------< ADC clk_2mhz_tte
 		    <--------RS485_TX[6]-----------------< ADC Chopper Clock OUT
@@ -260,17 +262,26 @@ wire  AD9511_output1; // Only output 1 is needed
 	#(.IOSTANDARD("LVCMOS33"))
 	 BUF84 (
 		.O(ATCA_shared_clk), 
-		.I(ATCA_RX_1A) // Shared 10 MHz Clock  from ATCA
+		.I(ATCA_RX_1A) // Shared  Clock  from ATCA
 	);
 	
 	wire RS485_RX_1_buf;
 	IBUFG 
 		#(.IOSTANDARD("LVCMOS33"))
 	 BUF76 (
-		.O(RS485_RX_1_buf), // 10MHz input clock on Simple RTM
+		.O(RS485_RX_1_buf), // input trigger on RTM
 		.I(RS485_RX_1)  
 	);	
 
+
+	wire RS485_RX_2_buf;
+	IBUFG 
+		#(.IOSTANDARD("LVCMOS33"))
+	 BUF77 (
+		.O(RS485_RX_2_buf), // 2MHz input clock on  RTM
+		.I(RS485_RX_2)  
+	);	
+	
 	wire RS485_RX_4_buf;
 	IBUFG 
 		#(.IOSTANDARD("LVCMOS33"))
@@ -360,7 +371,7 @@ wire  AD9511_output1; // Only output 1 is needed
 	wire master = ~RTM_PRESENT;  // ATCA Master Board is the one with RTM connected ( make sure only one is used)
 
 	reg [1:0] software_trig_dly;
-	reg [1:0] RS485_RX_4_delay;
+	reg [1:0] RS485_RX_1_delay; // for deboucing
 	reg soft_trigger_n;
 	
 	reg hard_trigger_n;
@@ -368,23 +379,23 @@ wire  AD9511_output1; // Only output 1 is needed
 		begin
 		 software_trig_dly <= {software_trig_dly[0], commandREG[STRG_BIT]}; 
 		 soft_trigger_n <= ~((~software_trig_dly[1]) & software_trig_dly[0]); // at rising edge commandREG[STRG]
-		 RS485_RX_4_delay <= {RS485_RX_4_delay[0],RS485_RX_4_buf};
-		 hard_trigger_n <= RS485_RX_4_buf | (~RS485_RX_4_delay[1]); // falling edge  RS485_RX[1]
+		 RS485_RX_1_delay <= {RS485_RX_1_delay[0],RS485_RX_1_buf};
+		 hard_trigger_n <= RS485_RX_1_buf | (~RS485_RX_1_delay[1]); // falling edge  RS485_RX[1]
 		end 
 
-	wire ATCA_trigger_n;
+	wire ATCA_shared_trigger_n;
  	IBUFG
 	#(.IOSTANDARD("LVCMOS33"))
 	 BUF85 (
-		.O(ATCA_trigger_n), // 
+		.O(ATCA_shared_trigger_n), // 
 		.I(ATCA_RX_1B) // 
 	);
 
-	/*Both triggers are ORed before sending to ATCA Backplane*/
-	wire ored_trigger_n = soft_trigger_n & hard_trigger_n;
+	/*Both triggers are ORed before master sends to ATCA Backplane*/
+	wire master_trigger_out = soft_trigger_n & hard_trigger_n;
 	
-//	wire  local_trigger_n = (master)? ATCA_trigger_n : (ATCA_trigger_n & soft_trigger_n ); // if slave, trigger on own soft trigger in multiboard ATCA systems
-	wire  local_trigger_n = ored_trigger_n; // For testing, no  need to broadcast the trigger
+//	wire  local_trigger_n = (master)? ATCA_shared_trigger_n : (ATCA_shared_trigger_n & soft_trigger_n ); // if slave, trigger on own soft trigger in multiboard ATCA systems
+	wire  local_trigger_n = master_trigger_out; // For testing, Trigger just this board, no  need to broadcast.
 
 	reg  acq_r = 0; 
 	
@@ -510,7 +521,7 @@ wire  AD9511_output1; // Only output 1 is needed
 
 /*PCIe STATUS Word Register fields*/
 	wire [31:0] statusdREG =
-			{4'h0,								                          3'h0, ~ATCA_trigger_n,   		
+			{4'h0,								                          3'h0, ~ATCA_shared_trigger_n,   		
 			 1'b0, AD9511_STATUS, master, cfg_interrupt_msienable,               slotID, 
 			 commandREG[STREAME_BIT], PCIe_dma_rd_en, PCIe_dma_start, dma_data_ready_i,	  2'b0, ~soft_trigger_n,  acq_r,   		
 			 FW_VERSION}; 
@@ -519,11 +530,11 @@ wire  AD9511_output1; // Only output 1 is needed
 
 //FRONT PANEL LEDS 1: OFF 0:ON
 	assign IPMC_GPIO_LEDS[5] = (stream_on_r)? time_counter_r[18] : time_counter_r[20];  
-	assign IPMC_GPIO_LEDS[6] = ~AD9511_STATUS; // ~RS485_RX_4_buf;
+	assign IPMC_GPIO_LEDS[6] = ~AD9511_STATUS; 
 
 // ATCA output signals  (only for master board)
-	assign ATCA_TX_1A = RS485_RX_1_buf;
-	assign ATCA_TX_1B = ored_trigger_n; 	// trigger
+	assign ATCA_TX_1A = RS485_RX_2_buf; // 2MhzClock
+	assign ATCA_TX_1B = master_trigger_out; 	// trigger
 	assign ATCA_TX_2A = 1'b1; 
 	assign ATCA_TX_2B = 1'b1; 
 	assign ATCA_TX_3A = 1'b1;

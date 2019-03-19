@@ -35,7 +35,7 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////////
-parameter FW_VERSION = 8'hB4;
+parameter FW_VERSION = 8'hC0;
 
 parameter MEM32_bar =  2'b01; // BAR 0
 parameter BAR0 =  MEM32_bar;
